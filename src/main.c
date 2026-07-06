@@ -3,6 +3,8 @@
 #include <gint/usb-ff-bulk.h>
 #include <gint/usb.h>
 
+#include "Renderer.h"
+
 #define ENFORCE_USB false
 
 static void usb_init(void) {
@@ -25,6 +27,9 @@ int main(void) {
               DTEXT_MIDDLE,
               "Press any key to start");
     if (usb_is_open()) usb_fxlink_videocapture(false);
+    dupdate();
+    getkey();
+    render();
     dupdate();
 
     while (true) { getkey(); }
