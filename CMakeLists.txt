@@ -1,8 +1,10 @@
 # Configure with [fxsdk build-fx] or [fxsdk build-cg], which provide the
 # toolchain file and module path of the fxSDK
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 cmake_minimum_required(VERSION 3.15)
-project(Raycaster)
+project(Raytracer)
 
 include(GenerateG1A)
 include(GenerateG3A)
@@ -12,7 +14,6 @@ find_package(Gint 2.9 REQUIRED)
 
 set(SOURCES
   src/main.c
-  # ...
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
@@ -31,17 +32,21 @@ fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
 add_executable(myaddin ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
 target_compile_options(myaddin PRIVATE -Wall -Wextra -Os -g -flto)
-target_link_libraries(myaddin Gint::Gint)
+target_include_directories(myaddin PRIVATE header)
+target_link_libraries(myaddin
+  Gint::Gint
+  m
+)
 
 if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
-  generate_g1a(TARGET myaddin OUTPUT "Raycaster.g1a"
-    NAME "Raycaster" ICON assets-fx/icon.png)
+  generate_g1a(TARGET myaddin OUTPUT "Raytracer.g1a"
+    NAME "Raytracer" ICON assets-fx/icon.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCG50)
-  generate_g3a(TARGET myaddin OUTPUT "Raycaster.g3a"
-    NAME "Raycaster" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
+  generate_g3a(TARGET myaddin OUTPUT "Raytracer.g3a"
+    NAME "Raytracer" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G_G3A)
-  generate_g3a(TARGET myaddin OUTPUT "Raycaster-fx.g3a"
-    NAME "Raycaster-fx" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
+  generate_g3a(TARGET myaddin OUTPUT "Raytracer-fx.g3a"
+    NAME "Raytracer-fx" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCP)
-  generate_hh2_bin(TARGET myaddin OUTPUT "Raycaster-hh2.bin")
+  generate_hh2_bin(TARGET myaddin OUTPUT "Raytracer-hh2.bin")
 endif()
