@@ -4,6 +4,10 @@
 #include <math.h>
 
 typedef struct {
+    float x, y;
+} Vec2;
+
+typedef struct {
     float x, y, z;
 } Vec3;
 
@@ -37,8 +41,8 @@ static inline float Vec3_length(Vec3 v) {
     return sqrtf(Vec3_dot(v, v));
 }
 static inline Vec3 Vec3_normalize(Vec3 v) {
-    float invLen = 1.0f / sqrtf(Vec3_dot(v, v));
-    return vec(v.x * invLen, v.y * invLen, v.z * invLen);
+    float invLen = 1.0f / Vec3_length(v);
+    return Vec3_scale(v, invLen);
 }
 
 #endif /* ifndef INCLUDE_VECTOR_H */
