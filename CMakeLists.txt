@@ -17,6 +17,8 @@ set(SOURCES
 
   src/Scene/Light/Light.c
   src/Scene/Light/LightSampler.c
+
+  src/Objects/Sphere.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
