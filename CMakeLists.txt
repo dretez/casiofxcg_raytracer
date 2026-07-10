@@ -23,6 +23,12 @@ set(SOURCES
   src/Scene/Light/LightSampler.c
 
   src/Scene/Objects/Sphere.c
+
+  src/Engine/Tracing.c
+  src/Engine/Background.c
+  src/Engine/Intersection.c
+  src/Engine/Lighting.c
+  src/Engine/Shading.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
