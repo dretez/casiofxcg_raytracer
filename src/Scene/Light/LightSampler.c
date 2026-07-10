@@ -2,7 +2,7 @@
 
 #include "Scene/Light/AreaLight.h"
 #include "Scene/Light/Light.h"
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 #include <math.h>
 

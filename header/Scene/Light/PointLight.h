@@ -1,7 +1,7 @@
 #ifndef INCLUDE_LIGHT_POINTLIGHT_H
 #define INCLUDE_LIGHT_POINTLIGHT_H
 
-#include "Light.h"
+#include "Scene/Light/Light.h"
 
 typedef struct PointLight {
     Light light;

@@ -3,7 +3,7 @@
 
 #include "Scene/Objects/Material.h"
 #include "Scene/Ray.h"
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 typedef struct {
     Material* material;

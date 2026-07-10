@@ -4,7 +4,7 @@
 #include "Scene/Light/PointLight.h"
 
 #include "Scene/Light/LightSampler.h"
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 #define DISK_AREA_SAMPLE_COUNT 16
 

@@ -1,5 +1,5 @@
 #include "Scene/Objects/Sphere.h"
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 #include <math.h>
 

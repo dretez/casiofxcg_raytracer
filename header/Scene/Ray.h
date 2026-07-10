@@ -1,7 +1,7 @@
 #ifndef INCLUDE_RAY_H
 #define INCLUDE_RAY_H
 
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 typedef struct {
     Vec3 origin;

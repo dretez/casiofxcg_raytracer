@@ -1,7 +1,7 @@
 #ifndef INCLUDE_LIGHT_LIGHTSAMPLER_H
 #define INCLUDE_LIGHT_LIGHTSAMPLER_H
 
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 struct Light;
 

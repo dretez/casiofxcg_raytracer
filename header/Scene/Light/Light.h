@@ -2,7 +2,7 @@
 #define INCLUDE_LIGHT_LIGHT_H
 
 #include "Color.h"
-#include "Vector.h"
+#include "Vector/Vector.h"
 
 typedef enum {
     LIGHT_POINT,

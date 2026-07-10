@@ -2,8 +2,7 @@
 #define INCLUDE_SCENE_CAMERA_H
 
 #include "Scene/Ray.h"
-#include "Vector.h"
-#include <gint/display.h>
+#include "Vector/Vector.h"
 
 typedef struct {
     Vec3 position;
