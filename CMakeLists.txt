@@ -13,6 +13,7 @@ include(Fxconv)
 find_package(Gint 2.9 REQUIRED)
 
 set(SOURCES
+  src/Renderer.c
   src/main.c
 
   src/Scene/Camera.c
@@ -29,6 +30,9 @@ set(SOURCES
   src/Engine/Intersection.c
   src/Engine/Lighting.c
   src/Engine/Shading.c
+
+  src/assets/demo.c
+  src/assets/materials.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
