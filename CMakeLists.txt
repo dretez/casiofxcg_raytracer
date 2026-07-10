@@ -16,11 +16,13 @@ set(SOURCES
   src/main.c
 
   src/Scene/Camera.c
+  src/Scene/Scene.c
+  src/Scene/SceneBuilder.c
 
   src/Scene/Light/Light.c
   src/Scene/Light/LightSampler.c
 
-  src/Objects/Sphere.c
+  src/Scene/Objects/Sphere.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
