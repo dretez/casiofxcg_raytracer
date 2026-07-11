@@ -1,8 +1,9 @@
 #ifndef INCLUDE_COLOR_H
 #define INCLUDE_COLOR_H
 
+#include <gint/defs/types.h>
+
 #include "Fixed.h"
-#include "gint/defs/types.h"
 
 #define COLOR_SHIFT UQ0_16_SHIFT
 #define COLOR_ONE UQ0_16_ONE
@@ -38,6 +39,14 @@ static inline color_t float2color(float x) {
 }
 static inline float color2float(color_t x) {
     return uq0_16_to_float(x);
+}
+
+static inline color_t colorAdd(color_t a, color_t b) {
+    return uq0_16_add(a, b);
+}
+
+static inline color_t colorSub(color_t a, color_t b) {
+    return uq0_16_sub(a, b);
 }
 
 static inline color_t colorMul(color_t a, color_t b) {
@@ -93,14 +102,6 @@ static inline void ColorAccumulator_scale(ColorAccumulator* acc, color_t scale) 
 }
 
 static inline Color ColorAccumulator_toColor(const ColorAccumulator* acc) {
-    color_acc_t r = acc->r;
-    color_acc_t g = acc->g;
-    color_acc_t b = acc->b;
-
-    if (r > COLOR_ONE) r = COLOR_ONE;
-    if (g > COLOR_ONE) g = COLOR_ONE;
-    if (b > COLOR_ONE) b = COLOR_ONE;
-
     return (Color){
         uq16_16_to_uq0_16(acc->r),
         uq16_16_to_uq0_16(acc->g),
@@ -109,7 +110,9 @@ static inline Color ColorAccumulator_toColor(const ColorAccumulator* acc) {
 }
 
 static inline u16 color2rgb565(Color color) {
-    return ((color.r >> 10) << 11) | ((color.g >> 9) << 5) | ((color.b >> 10));
+    return ((color.r >> (COLOR_SHIFT - 5)) << 11) |
+           ((color.g >> (COLOR_SHIFT - 6)) << 5) |
+           ((color.b >> (COLOR_SHIFT - 5)));
 }
 
 #endif /* ifndef INCLUDE_COLOR_H */
