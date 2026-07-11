@@ -6,6 +6,17 @@
 #include "Vector/FloatingVector.h"
 #include "Vector/Vector.h"
 
+void Camera_free(Camera* camera) {
+    if (camera->screenX) {
+        free(camera->screenX);
+        camera->screenX = NULL;
+    }
+    if (camera->screenY) {
+        free(camera->screenY);
+        camera->screenY = NULL;
+    }
+}
+
 int makeCamera(Camera* camera, Vec3 position, Vec3 target, Vec3 worldUp, float fov, int width, int height) {
     camera->screenX = malloc(sizeof(float) * width);
     if (camera->screenX == NULL) return 1;
