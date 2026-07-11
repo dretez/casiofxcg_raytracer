@@ -2,6 +2,7 @@
 #define INCLUDE_LIGHT_LIGHT_H
 
 #include "Color.h"
+#include "Fixed.h"
 #include "Vector/Vector.h"
 
 typedef enum {
@@ -14,7 +15,7 @@ typedef struct Light {
     Vec3 pos;
     Color color;
 
-    float invsamples;
+    uq0_16 invsamples;
     int samples;
 } Light;
 

@@ -187,7 +187,8 @@ static inline uq0_16 uq16_16_to_uq0_16(uq16_16 x) {
 }
 
 static inline uq16_16 uq16_16_add(uq16_16 a, uq16_16 b) {
-    return (uq16_16)((u64)a + (u64)b);
+    u64 c = ((u64)a + (u64)b);
+    return c > UINT32_MAX ? UINT32_MAX : (uq16_16)c;
 }
 
 static inline uq16_16 uq16_16_sub(uq16_16 a, uq16_16 b) {
@@ -224,7 +225,7 @@ static inline uq16_16 uq16_16_rsqrt(uq16_16 x) {
         y >>= 1;
     }
     // undo normalization
-    y = shift >= 0 ? y << (shift / 2) : (y >> (-shift)) / 2;
+    y = shift >= 0 ? y << (shift / 2) : y >> (-shift / 2);
     // Handle odd powers of two.
     if (shift & 1) y = uq16_16_mul(y, shift > 0 ? UQ16_16_SQRT_2 : UQ16_16_RSQRT_2);
 

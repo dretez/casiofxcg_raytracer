@@ -3,11 +3,43 @@
 #include "Scene/Light/Light.h"
 #include "Scene/Light/LightSampler.h"
 
+void computeSample(ColorAccumulator* lightContribution,
+                   const HitRecord*  hit,
+                   const Light*      light,
+                   LightSampler*     lsampler,
+                   Vec3              viewDir,
+                   const Material*   material,
+                   Color             baseColor,
+                   const Scene*      scene) {
+    Vec3 sample = LightSampler_sample(light, lsampler);
+
+    Vec3  offset = Vec3_sub(sample, hit->normal.origin);
+    float ndoto  = Vec3_dot(hit->normal.direction, offset);
+    if (ndoto <= 0) return;
+
+    float distance2   = Vec3_dot(offset, offset);
+    float invDistance = 1.0f / sqrtf(distance2);
+    float distance    = distance2 * invDistance;
+
+    Vec3 lightDir = Vec3_scale(offset, invDistance);
+
+    color_t shadow = shadowTransmission(hit, lightDir, distance, scene);
+    if (!shadow) return;
+
+    color_t diffuse  = float2color(ndoto * invDistance);
+    color_t specular = phongSpecular(hit->normal.direction, lightDir, viewDir, material);
+
+    color_t diffuseWeight  = colorMul(material->diffuse, colorMul(diffuse, shadow));
+    color_t specularWeight = colorMul(specular, shadow);
+    ColorAccumulator_addScaled(lightContribution, baseColor, diffuseWeight);
+    ColorAccumulator_addScaled(lightContribution, light->color, specularWeight);
+}
+
 Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
     const Material* material = hit->object->material;
 
-    Vec3 viewDir = Vec3_neg(ray.direction);
-    Color    result  = Color_scale(material->color, material->ambient);
+    Vec3  viewDir = Vec3_neg(ray.direction);
+    Color result  = Color_scale(material->color, material->ambient);
 
     for (int i = 0; i < scene->lightCount; i++) {
         Light*       light = scene->lights[i];
@@ -17,32 +49,10 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
 
         Color lmColor = Color_mul(material->color, light->color);
 
-        for (int s = 0; s < light->samples; s++) {
-            Vec3 sample = LightSampler_sample(light, &lsampler);
+        for (int s = 0; s < light->samples; s++)
+            computeSample(&lightContribution, hit, light, &lsampler, viewDir, material, lmColor, scene);
 
-            Vec3   offset = Vec3_sub(sample, hit->normal.origin);
-            float ndoto  = Vec3_dot(hit->normal.direction, offset);
-            if (ndoto <= 0) continue;
-
-            float distance2   = Vec3_dot(offset, offset);
-            float invDistance = sqrtf(distance2);
-            float distance    = distance2 * invDistance;
-
-            Vec3 lightDir = Vec3_scale(offset, invDistance);
-
-            color_t shadow = shadowTransmission(hit, lightDir, distance, scene);
-            if (!shadow) continue;
-
-            float  diffuse  = ndoto * invDistance;
-            color_t specular = phongSpecular(hit->normal.direction, lightDir, viewDir, material);
-
-            color_t diffuseWeight  = colorMul(material->diffuse, colorMul(diffuse, shadow));
-            color_t specularWeight = colorMul(specular, shadow);
-            ColorAccumulator_addScaled(&lightContribution, lmColor, diffuseWeight);
-            ColorAccumulator_addScaled(&lightContribution, light->color, specularWeight);
-        }
-
-        ColorAccumulator_scale(&lightContribution, float2color(light->invsamples));
+        ColorAccumulator_scale(&lightContribution, light->invsamples);
         result = Color_add(result, ColorAccumulator_toColor(&lightContribution));
     }
 
@@ -68,12 +78,12 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, float lightDist,
 
 color_t phongSpecular(Vec3 normal, Vec3 lightDir, Vec3 viewDir, const Material* material) {
     if (!material->specular) return 0;
-    Vec3 reflected = Vec3_reflect(Vec3_neg(lightDir), normal);
-    float   rdotv     = Vec3_dot(reflected, viewDir);
+    Vec3  reflected = Vec3_reflect(Vec3_neg(lightDir), normal);
+    float rdotv     = Vec3_dot(reflected, viewDir);
     if (rdotv <= 0) return 0;
 
     float specular = rdotv;
-    u16    exp      = material->shininess;
+    u16   exp      = material->shininess;
     switch (exp) {
     case 128:
         specular *= specular;
@@ -98,5 +108,5 @@ color_t phongSpecular(Vec3 normal, Vec3 lightDir, Vec3 viewDir, const Material* 
         break;
     }
 
-    return colorMul(material->specular, specular);
+    return colorMul(material->specular, float2color(specular));
 }

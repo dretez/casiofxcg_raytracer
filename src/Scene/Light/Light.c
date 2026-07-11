@@ -1,5 +1,6 @@
 #include "Scene/Light/Light.h"
 #include "Color.h"
+#include "Fixed.h"
 #include "Scene/Light/AreaLight.h"
 #include "Scene/Light/PointLight.h"
 
@@ -15,13 +16,12 @@ static const Vec2 diskSamples[DISK_AREA_SAMPLE_COUNT] = {
     { 0.43f, -0.05f }, { -0.22f, -0.37f }, { 0.01f, 0.49f },  { -0.31f, 0.15f }
 };
 
-void Light_init(
-    Light* light, LightType type, Vec3 posisition, Color color, float intensity, int samples) {
+void Light_init( Light* light, LightType type, Vec3 posisition, Color color, float intensity, int samples) {
     light->type       = type;
     light->pos        = posisition;
     light->color      = Color_scale(color, float2color(intensity));
     light->samples    = samples;
-    light->invsamples = 1.0f / samples;
+    light->invsamples = uq0_16_from_float(1.0f / samples);
 }
 
 void PointLight_init(PointLight* light, Vec3 posisition, Color color, float intensity) {
