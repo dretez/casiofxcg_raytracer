@@ -2,6 +2,7 @@
 
 #include "Scene/Light/Light.h"
 #include "Scene/Light/LightSampler.h"
+#include "Scene/Objects/Object.h"
 
 void computeSample(ColorAccumulator* lightContribution,
                    const HitRecord*  hit,
@@ -67,11 +68,11 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, float lightDist,
     };
 
     color_t transmission = COLOR_ONE;
-    for (int i = 0; i < scene->sphereCount; i++) {
-        Sphere* sphere = &scene->spheres[i];
-        if (sphere == hit->object || !intersectSphere(&shadowRay, sphere, lightDist)) continue;
-        if (!sphere->material->transparency) return 0;
-        transmission = colorMul(transmission, sphere->material->transparency);
+    for (int i = 0; i < scene->objectCount; i++) {
+        const Object* obj = scene->objects[i];
+        if (obj == hit->object || !obj->vtable->intersect(obj, &shadowRay, lightDist)) continue;
+        if (!obj->material->transparency) return 0;
+        transmission = colorMul(transmission, obj->material->transparency);
     }
     return transmission;
 }

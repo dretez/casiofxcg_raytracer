@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "assets/scenes.h"
+#include "Engine/Tracing.h"
 
 #define MAX_DEPTH 3
 

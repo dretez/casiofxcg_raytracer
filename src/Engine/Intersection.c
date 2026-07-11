@@ -1,4 +1,5 @@
 #include "Engine/Intersection.h"
+#include "Scene/Objects/Object.h"
 
 static const HitRecord noHit = (HitRecord){
     .normal =
@@ -11,18 +12,19 @@ static const HitRecord noHit = (HitRecord){
 
 HitRecord intersectScene(Ray ray, const Scene* scene) {
     float   nearest = 1e30;
-    Sphere* hit     = NULL;
+    const Object* hit     = NULL;
 
-    for (int i = 0; i < scene->sphereCount; i++) {
+    for (int i = 0; i < scene->objectCount; i++) {
+        Object *obj = scene->objects[i];
         float t;
-        if (!intersectSphereAt(&ray, &scene->spheres[i], nearest, &t)) continue;
+        if (!obj->vtable->intersectAt(obj, &ray, nearest, &t)) continue;
         nearest = t;
-        hit     = &scene->spheres[i];
+        hit     = obj;
     }
 
     if (!hit) return noHit;
     Vec3 hitPoint = Vec3_add(ray.origin, Vec3_scale(ray.direction, nearest));
-    Vec3 normal   = Vec3_normalize(Vec3_sub(hitPoint, hit->center));
+    Vec3 normal   = hit->vtable->normal(hit, hitPoint);
 
     return (HitRecord){
         .normal =

@@ -4,15 +4,14 @@
 #include "Color.h"
 #include "Scene/Camera.h"
 #include "Scene/Objects/Material.h"
-#include "Scene/Objects/Sphere.h"
 #include "Scene/Scene.h"
 #include "utils.h"
 
-DEFINE_LIST_STRUCT(Sphere, SphereList);
+DEFINE_LIST_STRUCT(Object*, ObjectList);
 DEFINE_LIST_STRUCT(Light*, LightList);
 
 typedef struct {
-    SphereList spheres;
+    ObjectList objects;
     LightList  lights;
     Camera     camera;
 } SceneBuilder;

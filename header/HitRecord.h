@@ -1,11 +1,11 @@
 #ifndef INCLUDE_HITRECORD_H
 #define INCLUDE_HITRECORD_H
 
-#include "Scene/Objects/Sphere.h"
+#include "Scene/Objects/Object.h"
 
 typedef struct {
-    Ray     normal;
-    Sphere* object;
+    Ray           normal;
+    const Object* object;
 } HitRecord;
 
 #endif /* ifndef INCLUDE_HITRECORD_H */
