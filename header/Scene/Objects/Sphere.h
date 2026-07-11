@@ -6,7 +6,7 @@
 #include "Vector/Vector.h"
 
 typedef struct {
-    Material* material;
+    const Material* material;
 
     Vec3  center;
     float radius;

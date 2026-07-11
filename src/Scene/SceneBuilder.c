@@ -24,7 +24,7 @@ int SceneBuilder_setCamera(SceneBuilder* builder, Camera camera) {
     return 0;
 }
 
-int SceneBuilder_addSphere(SceneBuilder* builder, Vec3 center, float radius, Material* material) {
+int SceneBuilder_addSphere(SceneBuilder* builder, Vec3 center, float radius, const Material* material) {
     Sphere sphere = (Sphere){
         .center   = center,
         .radius   = radius,

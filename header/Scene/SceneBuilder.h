@@ -21,7 +21,7 @@ void SceneBuilder_init(SceneBuilder* builder);
 void SceneBuilder_destroy(SceneBuilder* builder);
 
 int SceneBuilder_setCamera(SceneBuilder* builder, Camera camera);
-int SceneBuilder_addSphere(SceneBuilder* builder, Vec3 center, float radius, Material *material);
+int SceneBuilder_addSphere(SceneBuilder* builder, Vec3 center, float radius, const Material *material);
 int SceneBuilder_addPointLight(SceneBuilder* builder, Vec3 posisition, Color color, float intensity);
 int SceneBuilder_addAreaLight(SceneBuilder* builder, Vec3 posisition, Color color, float intensity, float radius);
 
