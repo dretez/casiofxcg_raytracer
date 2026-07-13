@@ -2,7 +2,6 @@
 #define INCLUDE_LIGHT_AREALIGHT_H
 
 #include "Scene/Light/Light.h"
-#include "Scene/Light/LightSampler.h"
 
 typedef struct AreaLight {
     Light light;
@@ -10,6 +9,6 @@ typedef struct AreaLight {
 } AreaLight;
 
 void AreaLight_init(AreaLight *light, Vec3 posisition, Color color, float intensity, float radius);
-Vec3 AreaLight_sample(int sampleIndex, const LightSampler* sampler);
+// Vec3 AreaLight_sample(int sampleIndex, const LightSampler* sampler);
 
 #endif /* ifndef INCLUDE_LIGHT_AREALIGHT_H */

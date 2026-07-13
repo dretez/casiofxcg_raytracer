@@ -142,6 +142,10 @@ static inline uq0_16 uq0_16_from_float(float x) {
     return UQ0_16_FROM_FLOAT(x);
 }
 
+static inline uq0_16 uq0_16_from_unitfloat(float x) {
+    return (uq0_16)(x * (float)UQ0_16_ONE + 0.5);
+}
+
 static inline float uq0_16_to_float(uq0_16 x) {
     return (float)x / (float)UQ0_16_ONE;
 }

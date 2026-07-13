@@ -1,57 +1,43 @@
 #include "assets/materials.h"
+#include "Scene/Objects/Material.h"
 
-const Material MATERIAL_MATTE = {
-    .color        = COLOR_RGB(1.0f, 0.0f, 0.0f),
-    .ambient      = COLOR_FROM_FLOAT(0.1f),
-    .diffuse      = COLOR_FROM_FLOAT(1.0f),
-    .specular     = COLOR_FROM_FLOAT(0.0f),
-    .reflectivity = COLOR_FROM_FLOAT(0.0f),
-    .transparency = COLOR_FROM_FLOAT(0.0f),
-    .ior          = 1.0f,
-    .invior       = 1.0f,
-    .shininess    = 16,
-};
-const Material MATERIAL_PLASTIC = {
-    .color        = COLOR_RGB(0.2f, 0.6f, 1.0f),
-    .ambient      = COLOR_FROM_FLOAT(0.1f),
-    .diffuse      = COLOR_FROM_FLOAT(1.0f),
-    .specular     = COLOR_FROM_FLOAT(0.4f),
-    .reflectivity = COLOR_FROM_FLOAT(0.0f),
-    .transparency = COLOR_FROM_FLOAT(0.0f),
-    .ior          = 1.0f,
-    .invior       = 1.0f,
-    .shininess    = 32,
-};
-const Material MATERIAL_POLISHED = {
-    .color        = COLOR_RGB(1.0f, 1.0f, 1.0f),
-    .ambient      = COLOR_FROM_FLOAT(0.05f),
-    .diffuse      = COLOR_FROM_FLOAT(0.8f),
-    .specular     = COLOR_FROM_FLOAT(1.0f),
-    .reflectivity = COLOR_FROM_FLOAT(0.8f),
-    .transparency = COLOR_FROM_FLOAT(0.0f),
-    .ior          = 1.0f,
-    .invior       = 1.0f,
-    .shininess    = 128,
-};
-const Material MATERIAL_GLASS = {
-    .color        = COLOR_RGB(1.0f, 1.0f, 1.0f),
-    .ambient      = COLOR_FROM_FLOAT(0.0f),
-    .diffuse      = COLOR_FROM_FLOAT(0.1f),
-    .specular     = COLOR_FROM_FLOAT(1.0f),
-    .reflectivity = COLOR_FROM_FLOAT(0.05f),
-    .transparency = COLOR_FROM_FLOAT(0.95f),
-    .ior          = 1.458f,
-    .invior       = 1.0f / 1.458f,
-    .shininess    = 128,
-};
-const Material MATERIAL_MIRROR = {
-    .color        = COLOR_RGB(1.0f, 1.0f, 1.0f),
-    .ambient      = COLOR_FROM_FLOAT(0.05f),
-    .diffuse      = COLOR_FROM_FLOAT(1.0f),
-    .specular     = COLOR_FROM_FLOAT(0.0f),
-    .reflectivity = COLOR_FROM_FLOAT(0.95f),
-    .transparency = COLOR_FROM_FLOAT(0.0f),
-    .ior          = 1.0f,
-    .invior       = 1.0f,
-    .shininess    = 128,
-};
+const Material MATERIAL_MATTE    = DEFINE_MATERIAL(COLOR_RGB(1.0f, 0.0f, 0.0f),
+                                                   COLOR_FROM_FLOAT(0.1f),
+                                                   COLOR_FROM_FLOAT(1.0f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   1.0f,
+                                                   16);
+const Material MATERIAL_PLASTIC  = DEFINE_MATERIAL(COLOR_RGB(0.2f, 0.6f, 1.0f),
+                                                   COLOR_FROM_FLOAT(0.1f),
+                                                   COLOR_FROM_FLOAT(1.0f),
+                                                   COLOR_FROM_FLOAT(0.4f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   1.0f,
+                                                   32);
+const Material MATERIAL_POLISHED = DEFINE_MATERIAL(COLOR_RGB(1.0f, 1.0f, 1.0f),
+                                                   COLOR_FROM_FLOAT(0.05f),
+                                                   COLOR_FROM_FLOAT(0.8f),
+                                                   COLOR_FROM_FLOAT(1.0f),
+                                                   COLOR_FROM_FLOAT(0.8f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   1.0f,
+                                                   128);
+const Material MATERIAL_GLASS    = DEFINE_MATERIAL(COLOR_RGB(1.0f, 1.0f, 1.0f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   COLOR_FROM_FLOAT(0.1f),
+                                                   COLOR_FROM_FLOAT(1.0f),
+                                                   COLOR_FROM_FLOAT(0.05f),
+                                                   COLOR_FROM_FLOAT(0.95f),
+                                                   1.458f,
+                                                   128);
+const Material MATERIAL_MIRROR   = DEFINE_MATERIAL(COLOR_RGB(1.0f, 1.0f, 1.0f),
+                                                   COLOR_FROM_FLOAT(0.05f),
+                                                   COLOR_FROM_FLOAT(1.0f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   COLOR_FROM_FLOAT(0.95f),
+                                                   COLOR_FROM_FLOAT(0.0f),
+                                                   1.0f,
+                                                   128);

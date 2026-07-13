@@ -15,8 +15,9 @@ typedef struct Light {
     Vec3 pos;
     Color color;
 
-    uq0_16 invsamples;
-    int samples;
+    uq0_16 invsamplec;
+    int samplec;
+    Vec3* samples;
 } Light;
 
 #endif /* ifndef INCLUDE_LIGHT_LIGHT_H */

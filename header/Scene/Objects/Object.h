@@ -12,10 +12,14 @@ typedef enum ObjectType {
 
 typedef struct Object Object;
 
+typedef int (*Object_intersect)(const Object* self, const Ray*, float);
+typedef int (*Object_intersectAt)(const Object* self, const Ray*, float, float*);
+typedef Vec3 (*Object_normal)(const Object* self, Vec3 hitPoint);
+
 typedef struct ObjectVTable {
-    int (*intersect)(const Object* self, const Ray*, float);
-    int (*intersectAt)(const Object* self, const Ray*, float, float*);
-    Vec3 (*normal)(const Object* self, Vec3 hitPoint);
+    const Object_intersect intersect;
+    const Object_intersectAt intersectAt;
+    const Object_normal normal;
 } ObjectVTable;
 
 struct Object {

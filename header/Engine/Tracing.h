@@ -9,8 +9,4 @@
 
 Color trace(Ray ray, int depth, const Scene* scene);
 
-Color traceRefraction(Ray incoming, HitRecord hit, float eta, int depth, const Scene* scene);
-
-Color traceReflection(Ray incoming, HitRecord hit, int depth, const Scene* scene);
-
 #endif /* ifndef INCLUDE_ENGINE_TRACING_H */

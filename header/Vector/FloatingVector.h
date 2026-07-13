@@ -135,7 +135,7 @@ static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
 }
 
 /**
- * Calculates a reflection direction given an incoming direction and a surface
+ * Calculates a refraction direction given an incoming direction and a surface
  * normal.
  * @param d incoming direction
  * @param n surface normal
@@ -146,8 +146,7 @@ static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
  * @return true if refraction occurs
  *         false if total internal reflection occurs
  */
-static inline int Vec3_refract(Vec3 d, Vec3 n, float eta, Vec3* refracted) {
-    float cosI  = -Vec3_dot(n, d);
+static inline int Vec3_refract(Vec3 d, Vec3 n, float cosI, float eta, Vec3* refracted) {
     float eta2  = eta * eta;
     float cosI2 = cosI * cosI;
     float sin2T = eta2 * (1.0f - cosI2);

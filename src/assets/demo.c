@@ -5,17 +5,14 @@
 #include "Vector/FixedVector.h"
 #include "assets/materials.h"
 
-static const Material floor_mat = {
-    .color        = COLOR_RGB(0.8, 0.8, 0.8),
-    .ambient      = COLOR_FROM_FLOAT(0.1f),
-    .diffuse      = COLOR_FROM_FLOAT(1.0f),
-    .specular     = COLOR_FROM_FLOAT(0.0f),
-    .reflectivity = COLOR_FROM_FLOAT(0.05f),
-    .transparency = COLOR_FROM_FLOAT(0.0f),
-    .ior          = 1.0f,
-    .invior       = 1.0f,
-    .shininess    = 16,
-};
+static const Material floor_mat = DEFINE_MATERIAL(COLOR_RGB(0.8, 0.8, 0.8),
+                                                  COLOR_FROM_FLOAT(0.1f),
+                                                  COLOR_FROM_FLOAT(1.0f),
+                                                  COLOR_FROM_FLOAT(0.0f),
+                                                  COLOR_FROM_FLOAT(0.05f),
+                                                  COLOR_FROM_FLOAT(0.0f),
+                                                  1.0f,
+                                                  16);
 
 Scene createDemoScene() {
     SceneBuilder builder;
