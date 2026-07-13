@@ -22,6 +22,9 @@ typedef struct LightingContext {
     uq0_16 ndotv;
 } LightingContext;
 
+i64 shadowTests = 0;
+i64 shadowHits = 0;
+
 color_t shadowTransmission( const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, float lightDist, const Scene* scene);
 
 color_t phongSpecular(uq0_16 ndotl, uq0_16 ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
@@ -65,17 +68,20 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
     return result;
 }
 
-color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, float lightDist, const Scene* scene) {
+color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin, float lightDist2, const Scene* scene) {
     const Object* self = hit->object;
     Ray shadowRay = (Ray){
         .origin    = shadowOrigin,
-        .direction = lightDir,
+        .direction = offset,
     };
 
     color_t transmission = COLOR_ONE;
     for (int i = 0; i < scene->objectCount; i++) {
         const Object* obj = scene->objects[i];
-        if (obj == self || !obj->vtable->intersect(obj, &shadowRay, lightDist)) continue;
+        if (obj == self) continue;
+        shadowTests++;
+        if (!obj->vtable->intersect(obj, &shadowRay, lightDist2)) continue;
+        shadowHits++;
         color_t transparency = obj->material->transparency;
         if (!transparency) return 0;
         transmission = colorMul(transmission, transparency);
@@ -129,13 +135,12 @@ void computeSample(const LightingContext* ctx,
     if (ndoto <= 0) return;
 
     float distance2   = Vec3_dot(offset, offset);
+    color_t shadow = shadowTransmission(ctx->hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
+    if (!shadow) return;
+
     float invDistance = 1.0f / sqrtf(distance2);
-    float distance    = distance2 * invDistance;
 
     Vec3 lightDir = Vec3_scale(offset, invDistance);
-
-    color_t shadow = shadowTransmission(ctx->hit, lightDir, ctx->shadowOrigin, distance, ctx->scene);
-    if (!shadow) return;
 
     float   ndotl    = uq0_16_from_unitfloat(ndoto * invDistance);
     color_t diffuse  = ndotl;

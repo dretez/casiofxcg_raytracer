@@ -4,6 +4,7 @@
 #include <gint/usb-ff-bulk.h>
 #include <stdio.h>
 
+#include "Engine/Lighting.h"
 #include "assets/scenes.h"
 #include "Engine/Tracing.h"
 
@@ -50,8 +51,10 @@ int render() {
         int t = elapsed_seconds(passStart);
         if (usb_is_open()) {
             usb_fxlink_videocapture(false);
-            char buf[64];
+            char buf[128];
             snprintf(buf, sizeof(buf), "Pass %d: %d s\n", pass, t);
+            usb_fxlink_text(buf, 0);
+            snprintf(buf, sizeof(buf),"Shadow tests: %lld, Shadow hits: %lld\n", shadowTests, shadowHits);
             usb_fxlink_text(buf, 0);
         }
     }

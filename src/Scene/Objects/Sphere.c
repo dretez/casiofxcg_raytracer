@@ -28,19 +28,19 @@ void Sphere_init(Sphere* sphere, const Material* material, Vec3 center, float ra
     };
 }
 
-int Sphere_intersect(const Object* self, const Ray* ray, float maxDist) {
+int Sphere_intersect(const Object* self, const Ray* ray, float maxDist2) {
     const Sphere* sphere = (Sphere*)self;
     Vec3          oc     = Vec3_sub(ray->origin, sphere->center);
 
     float b = Vec3_dot(oc, ray->direction);
-    if (b > 0.0f) return 0;
+    if (b >= 0.0f) return 0;
     float c = Vec3_dot(oc, oc) - sphere->radius2;
     if (c < 0.0f) return 1;
 
-    float disc = b * b - c;
+    float disc = b * b - maxDist2 * c;
     if (disc < 0.0f) return 0;
 
-    float limit = -b - maxDist;
+    float limit = -b - maxDist2;
     return limit <= 0.0f || disc > limit * limit;
 }
 
