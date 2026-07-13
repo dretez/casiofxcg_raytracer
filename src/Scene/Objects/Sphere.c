@@ -28,32 +28,37 @@ void Sphere_init(Sphere* sphere, const Material* material, Vec3 center, float ra
     };
 }
 
-static inline int sphereQuadratic(const Sphere* sphere, const Ray* ray, float maxDist, float* b, float* d) {
-    Vec3 oc = Vec3_sub(ray->origin, sphere->center);
-
-    float bb = Vec3_dot(oc, ray->direction);
-    float c = Vec3_dot(oc, oc) - sphere->radius2;
-
-    float discriminant = bb * bb - c;
-    if (discriminant < 0.0f) return 1;
-    float dLimit = -(maxDist + bb);
-    if (dLimit > 0.0f && discriminant < dLimit * dLimit) return 1;
-
-    *b = bb;
-    *d = sqrtf(discriminant);
-    return 0;
-}
-
 int Sphere_intersect(const Object* self, const Ray* ray, float maxDist) {
-    float b, d;
-    if(sphereQuadratic((Sphere*)self, ray, maxDist, &b, &d)) return 0;
-    if (b < d) return 1;
-    return d >= b && d - b < maxDist;
+    const Sphere* sphere = (Sphere*)self;
+    Vec3          oc     = Vec3_sub(ray->origin, sphere->center);
+
+    float b = Vec3_dot(oc, ray->direction);
+    if (b > 0.0f) return 0;
+    float c = Vec3_dot(oc, oc) - sphere->radius2;
+    if (c < 0.0f) return 1;
+
+    float disc = b * b - c;
+    if (disc < 0.0f) return 0;
+
+    float limit = -b - maxDist;
+    return limit <= 0.0f || disc > limit * limit;
 }
 
 int Sphere_intersectAt(const Object* self, const Ray* ray, float maxDist, float* t) {
-    float b, d;
-    if(sphereQuadratic((Sphere*)self, ray, maxDist, &b, &d)) return 0;
+    const Sphere* sphere = (Sphere*)self;
+    Vec3 oc = Vec3_sub(ray->origin, sphere->center);
+
+    float b = Vec3_dot(oc, ray->direction);
+    float c  = Vec3_dot(oc, oc) - sphere->radius2;
+    if (c >= 0.0f && b > 0.0f)
+        return 0;
+
+    float discriminant = b * b - c;
+    if (discriminant < 0.0f) return 0;
+    float dLimit = -(maxDist + b);
+    if (dLimit > 0.0f && discriminant <= dLimit * dLimit) return 0;
+
+    float d = sqrtf(discriminant);
     float minusB = -b;
     if (minusB >= d && minusB < d + maxDist) {
         *t = minusB - d;
