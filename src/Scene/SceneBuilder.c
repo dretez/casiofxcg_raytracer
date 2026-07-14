@@ -8,6 +8,7 @@
 #include "Scene/Light/PointLight.h"
 #include "Scene/Objects/Object.h"
 #include "Scene/Objects/Sphere.h"
+#include "Scene/Objects/Triangle.h"
 #include "utils.h"
 
 void SceneBuilder_init(SceneBuilder* builder) {
@@ -33,6 +34,14 @@ int SceneBuilder_addSphere(SceneBuilder*   builder,
     if (!sphere) return 1;
     Sphere_init(sphere, material, center, radius);
     list_add(builder->objects, Object*, (Object*)sphere, 1);
+    return 0;
+}
+
+int SceneBuilder_addTriangle(SceneBuilder* builder, const Material* material, Vec3 a, Vec3 b, Vec3 c) {
+    Triangle* tri = malloc(sizeof(Triangle));
+    if (!tri) return 1;
+    Triangle_init(tri, material, a, b, c);
+    list_add(builder->objects, Object*, (Object*)tri, 1);
     return 0;
 }
 

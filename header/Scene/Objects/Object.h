@@ -7,6 +7,7 @@
 
 typedef enum ObjectType {
     SPHERE,
+    TRIANGLE,
     OBJECT_TYPE_COUNT,
 } ObjectType;
 
