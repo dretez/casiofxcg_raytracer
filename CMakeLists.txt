@@ -24,6 +24,7 @@ set(SOURCES
   src/Scene/Light/LightSampler.c
 
   src/Scene/Objects/Sphere.c
+  src/Scene/Objects/Triangle.c
 
   src/Engine/Tracing.c
   src/Engine/Background.c

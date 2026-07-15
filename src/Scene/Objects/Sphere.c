@@ -3,9 +3,9 @@
 
 #include <math.h>
 
-int  Sphere_intersect(const Object* self, const Ray* ray, float maxDist);
-int  Sphere_intersectAt(const Object* self, const Ray* ray, float maxDist, float* t);
-Vec3 Sphere_normal(const Object* sphere, Vec3 hitPoint);
+static int  Sphere_intersect(const Object* self, const Ray* ray, float maxDist);
+static int  Sphere_intersectAt(const Object* self, const Ray* ray, float maxDist, float* t);
+static Vec3 Sphere_normal(const Object* sphere, Vec3 hitPoint);
 
 const ObjectVTable sphere_vtable = (ObjectVTable){
     .intersect   = Sphere_intersect,
@@ -28,7 +28,7 @@ void Sphere_init(Sphere* sphere, const Material* material, Vec3 center, float ra
     };
 }
 
-int Sphere_intersect(const Object* self, const Ray* ray, float maxDist2) {
+static int Sphere_intersect(const Object* self, const Ray* ray, float maxDist2) {
     const Sphere* sphere = (Sphere*)self;
     Vec3          oc     = Vec3_sub(ray->origin, sphere->center);
 
@@ -44,21 +44,20 @@ int Sphere_intersect(const Object* self, const Ray* ray, float maxDist2) {
     return limit <= 0.0f || disc > limit * limit;
 }
 
-int Sphere_intersectAt(const Object* self, const Ray* ray, float maxDist, float* t) {
+static int Sphere_intersectAt(const Object* self, const Ray* ray, float maxDist, float* t) {
     const Sphere* sphere = (Sphere*)self;
-    Vec3 oc = Vec3_sub(ray->origin, sphere->center);
+    Vec3          oc     = Vec3_sub(ray->origin, sphere->center);
 
     float b = Vec3_dot(oc, ray->direction);
-    float c  = Vec3_dot(oc, oc) - sphere->radius2;
-    if (c >= 0.0f && b > 0.0f)
-        return 0;
+    float c = Vec3_dot(oc, oc) - sphere->radius2;
+    if (c >= 0.0f && b > 0.0f) return 0;
 
     float discriminant = b * b - c;
     if (discriminant < 0.0f) return 0;
     float dLimit = -(maxDist + b);
     if (dLimit > 0.0f && discriminant <= dLimit * dLimit) return 0;
 
-    float d = sqrtf(discriminant);
+    float d      = sqrtf(discriminant);
     float minusB = -b;
     if (minusB >= d && minusB < d + maxDist) {
         *t = minusB - d;
@@ -68,7 +67,7 @@ int Sphere_intersectAt(const Object* self, const Ray* ray, float maxDist, float*
     return *t >= 0.0f && *t < maxDist;
 }
 
-Vec3 Sphere_normal(const Object* obj, Vec3 hitPoint) {
+static Vec3 Sphere_normal(const Object* obj, Vec3 hitPoint) {
     const Sphere* sphere = (const Sphere*)obj;
     return Vec3_scale(Vec3_sub(hitPoint, sphere->center), sphere->invradius);
 }
