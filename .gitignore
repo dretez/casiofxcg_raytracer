@@ -10,3 +10,6 @@ __pycache__/
 *.sublime-project
 *.sublime-workspace
 .vscode
+
+.clangd
+.compile_commands.json
