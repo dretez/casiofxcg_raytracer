@@ -3,9 +3,10 @@
 #include <stdlib.h>
 
 #include "Scene/Camera.h"
-#include "Scene/Light/AreaLight.h"
+#include "Scene/Light/DiskAreaLight.h"
 #include "Scene/Light/Light.h"
 #include "Scene/Light/PointLight.h"
+#include "Scene/Light/VolumeLight.h"
 #include "Scene/Objects/Object.h"
 #include "Scene/Objects/Sphere.h"
 #include "Scene/Objects/Triangle.h"
@@ -56,11 +57,19 @@ int SceneBuilder_addPointLight(SceneBuilder* builder,
     return 0;
 }
 
-int SceneBuilder_addAreaLight(SceneBuilder* builder, Vec3 posisition, Color color, float intensity, float radius) {
-    AreaLight* areaLight = malloc(sizeof(AreaLight));
-    if (areaLight == NULL) return 1;
-    AreaLight_init(areaLight, posisition, color, intensity, radius);
-    list_add(builder->lights, Light*, (Light*)areaLight, 1);
+int SceneBuilder_addVolumeLight(SceneBuilder* builder, Vec3 posisition, Color color, float intensity, float radius) {
+    VolumeLight* light = malloc(sizeof(VolumeLight));
+    if (light == NULL) return 1;
+    VolumeLight_init(light, posisition, color, intensity, radius);
+    list_add(builder->lights, Light*, (Light*)light, 1);
+    return 0;
+}
+
+int SceneBuilder_addDiskAreaLight(SceneBuilder* builder, Vec3 posisition, Color color, float intensity, float radius) {
+    DiskAreaLight* light = malloc(sizeof(DiskAreaLight));
+    if (light == NULL) return 1;
+    DiskAreaLight_init(light, posisition, color, intensity, radius);
+    list_add(builder->lights, Light*, (Light*)light, 1);
     return 0;
 }
 

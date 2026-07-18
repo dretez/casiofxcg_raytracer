@@ -4,7 +4,6 @@
 #include "Fixed.h"
 #include "HitRecord.h"
 #include "Scene/Light/Light.h"
-#include "Scene/Light/LightSampler.h"
 #include "Scene/Objects/Material.h"
 #include "Scene/Objects/Object.h"
 #include "Vector/FloatingVector.h"
@@ -18,26 +17,24 @@ typedef struct LightingContext {
     Vec3 viewDir;
     Vec3 shadowOrigin;
 
-    Color baseColor;
+    Color  baseColor;
     uq0_16 ndotv;
 } LightingContext;
 
 i64 shadowTests = 0;
-i64 shadowHits = 0;
+i64 shadowHits  = 0;
 
 color_t shadowTransmission( const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, float lightDist, const Scene* scene);
 
 color_t phongSpecular(uq0_16 ndotl, uq0_16 ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
 
-void computeSample(const LightingContext* ctx,
-                   const Light*          light,
-                   LightSampler*         lsampler);
+void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample);
 
 Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
     const Material* material = hit->object->material;
 
-    Color          result  = Color_scale(material->color, material->ambient);
-    Vec3           viewDir = Vec3_neg(ray.direction);
+    Color           result  = Color_scale(material->color, material->ambient);
+    Vec3            viewDir = Vec3_neg(ray.direction);
     LightingContext ctx     = (LightingContext){
         .hit      = hit,
         .material = hit->object->material,
@@ -51,15 +48,15 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
     Color baseColor = Color_scale(material->color, material->diffuse);
 
     for (int i = 0; i < scene->lightCount; i++) {
-        Light*       light = scene->lights[i];
-        LightSampler lsampler;
-        LightSampler_init(light, hit->point, &lsampler);
+        Light* light = scene->lights[i];
+        light->vtable->initSampler(light, hit->point);
         ColorAccumulator lightContribution = { 0 };
 
         ctx.baseColor = Color_mul(light->color, baseColor);
         ctx.colAcc    = &lightContribution;
 
-        for (int s = 0; s < light->samplec; s++) computeSample(&ctx, light, &lsampler);
+        for (int s = 0; s < light->samplec; s++)
+            computeSample(&ctx, light, light->vtable->sample(light, s));
 
         ColorAccumulator_scale(&lightContribution, light->invsamplec);
         result = Color_add(result, ColorAccumulator_toColor(&lightContribution));
@@ -69,10 +66,10 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
 }
 
 color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin, float lightDist2, const Scene* scene) {
-    const Object* self = hit->object;
-    Ray shadowRay = (Ray){
-        .origin    = shadowOrigin,
-        .direction = offset,
+    const Object* self      = hit->object;
+    Ray           shadowRay = (Ray){
+                  .origin    = shadowOrigin,
+                  .direction = offset,
     };
 
     color_t transmission = COLOR_ONE;
@@ -91,13 +88,13 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin,
 }
 
 color_t phongSpecular(uq0_16 ndotl, uq0_16 ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material) {
-    float ldotv = Vec3_dot(lightDir, viewDir);
+    float  ldotv = Vec3_dot(lightDir, viewDir);
     uq0_16 rdotv = (uq0_16_mul(ndotl, ndotv) - uq0_16_from_float(ldotv)) << 1;
     if (rdotv <= 0) return 0;
 
     uq0_16 baseSpecular = rdotv;
-    uq0_16 specular = baseSpecular;
-    u16   exp      = material->shininess;
+    uq0_16 specular     = baseSpecular;
+    u16    exp          = material->shininess;
     switch (exp) {
     case 128:
         specular = uq0_16_mul(specular, specular);
@@ -125,16 +122,12 @@ color_t phongSpecular(uq0_16 ndotl, uq0_16 ndotv, Vec3 lightDir, Vec3 viewDir, c
     return colorMul(material->specular, specular);
 }
 
-void computeSample(const LightingContext* ctx,
-                   const Light*          light,
-                   LightSampler*         lsampler) {
-    Vec3 sample = LightSampler_sample(light, lsampler);
-
+void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample) {
     Vec3  offset = Vec3_sub(sample, ctx->hit->point);
     float ndoto  = Vec3_dot(ctx->hit->normal, offset);
     if (ndoto <= 0) return;
 
-    float distance2   = Vec3_dot(offset, offset);
+    float   distance2 = Vec3_dot(offset, offset);
     color_t shadow = shadowTransmission(ctx->hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
     if (!shadow) return;
 
@@ -142,7 +135,7 @@ void computeSample(const LightingContext* ctx,
 
     Vec3 lightDir = Vec3_scale(offset, invDistance);
 
-    float   ndotl    = uq0_16_from_unitfloat(ndoto * invDistance);
+    uq0_16  ndotl    = uq0_16_from_unitfloat(ndoto * invDistance);
     color_t diffuse  = ndotl;
     color_t specular = 0;
     if (ctx->material->specular)

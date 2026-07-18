@@ -7,17 +7,28 @@
 
 typedef enum {
     LIGHT_POINT,
-    LIGHT_AREA,
+    LIGHT_DISKAREA,
+    LIGHT_VOLUME,
 } LightType;
 
+typedef struct Light Light;
+
+typedef void (*Light_initSampler)(Light* self, Vec3 shadingPoint);
+typedef Vec3 (*Light_sample)(const Light* self, u16 sampleNum);
+
+typedef struct LightVTable {
+    const Light_initSampler initSampler;
+    const Light_sample sample;
+} LightVTable;
+
 typedef struct Light {
-    LightType type;
+    const LightVTable* vtable;
     Vec3 pos;
+    LightType type;
     Color color;
 
     uq0_16 invsamplec;
-    int samplec;
-    Vec3* samples;
+    u16 samplec;
 } Light;
 
 #endif /* ifndef INCLUDE_LIGHT_LIGHT_H */

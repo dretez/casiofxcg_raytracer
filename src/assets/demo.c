@@ -31,7 +31,8 @@ Scene createDemoScene() {
     // SceneBuilder_addSphere(&builder, vec(0, -1001, -5), 1000, &floor_mat);
     SceneBuilder_addSphere(&builder, vec(0.5, 0, -5), 1, &MATERIAL_GLASS);
 
-    SceneBuilder_addAreaLight(&builder, vec(5, 5, -4), COLOR_RGB(1, 1, 1), 1.0, 3);
+    SceneBuilder_addVolumeLight(&builder, vec(5, 5, -4), COLOR_RGB(1, 1, 1), 1.0, 3);
+    // SceneBuilder_addDiskAreaLight(&builder, vec(5, 5, -4), COLOR_RGB(1, 1, 1), 1.0, 3);
 
     return SceneBuilder_build(&builder);
 }

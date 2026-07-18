@@ -21,7 +21,9 @@ set(SOURCES
   src/Scene/SceneBuilder.c
 
   src/Scene/Light/Light.c
-  src/Scene/Light/LightSampler.c
+  src/Scene/Light/PointLight.c
+  src/Scene/Light/DiskAreaLight.c
+  src/Scene/Light/VolumeLight.c
 
   src/Scene/Objects/Sphere.c
   src/Scene/Objects/Triangle.c
