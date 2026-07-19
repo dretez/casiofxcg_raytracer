@@ -47,11 +47,13 @@ Color trace(Ray ray, int depth, const Scene* scene) {
     HitRecord hit = intersectScene(ray, scene);
     if (!hit.object) return background(ray);
 
-    Color local     = computeLighting(&hit, ray, scene);
+    Color local = (Color){ 0 };
     Color reflected = (Color){ 0 };
     Color refracted = (Color){ 0 };
 
     const Material* material = hit.object->material;
+    if (material->ambient || material->diffuse || material->specular)
+        local = computeLighting(&hit, ray, scene);
     if (material->reflectivity || material->transparency) {
         float              rdotn = hit.rdotn;
         SurfaceInteraction si    = rdotn > 0 ? insideHit(&hit, rdotn) : outsideHit(&hit, rdotn);

@@ -18,15 +18,15 @@ typedef struct LightingContext {
     Vec3 shadowOrigin;
 
     Color  baseColor;
-    uq0_16 ndotv;
+    float ndotv;
 } LightingContext;
 
 i64 shadowTests = 0;
 i64 shadowHits  = 0;
 
-color_t shadowTransmission( const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, float lightDist, const Scene* scene);
+color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, float lightDist, const Scene* scene);
 
-color_t phongSpecular(uq0_16 ndotl, uq0_16 ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
+color_t phongSpecular(float ndotl, float ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
 
 void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample);
 
@@ -43,7 +43,7 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
         .viewDir      = viewDir,
         .shadowOrigin = hit->outerOffset,
 
-        .ndotv = -uq0_16_from_unitfloat(hit->rdotn),
+        .ndotv = -hit->rdotn,
     };
     Color baseColor = Color_scale(material->color, material->diffuse);
 
@@ -63,6 +63,31 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
     }
 
     return result;
+}
+
+void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample) {
+    Vec3  offset = Vec3_sub(sample, ctx->hit->point);
+    float ndoto  = Vec3_dot(ctx->hit->normal, offset);
+    if (ndoto <= 0) return;
+
+    float   distance2 = Vec3_dot(offset, offset);
+    color_t shadow = shadowTransmission(ctx->hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
+    if (!shadow) return;
+
+    float invDistance = 1.0f / sqrtf(distance2);
+
+    float ndotl = ndoto * invDistance;
+
+    color_t diffuse  = uq0_16_from_unitfloat(ndotl);
+    color_t diffuseWeight  = colorMul(diffuse, shadow);
+    ColorAccumulator_addScaled(ctx->colAcc, ctx->baseColor, diffuseWeight);
+
+    if (ctx->material->specular) {
+        Vec3 lightDir = Vec3_scale(offset, invDistance);
+        color_t specular = phongSpecular(ndotl, ctx->ndotv, lightDir, ctx->viewDir, ctx->material);
+        color_t specularWeight = colorMul(specular, shadow);
+        ColorAccumulator_addScaled(ctx->colAcc, light->color, specularWeight);
+    }
 }
 
 color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin, float lightDist2, const Scene* scene) {
@@ -87,62 +112,39 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin,
     return transmission;
 }
 
-color_t phongSpecular(uq0_16 ndotl, uq0_16 ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material) {
-    float  ldotv = Vec3_dot(lightDir, viewDir);
-    uq0_16 rdotv = (uq0_16_mul(ndotl, ndotv) - uq0_16_from_float(ldotv)) << 1;
+color_t phongSpecular(float ndotl, float ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material) {
+    float ldotv = Vec3_dot(lightDir, viewDir);
+    float rdotv = 2.0f * ndotl * ndotv - ldotv;
     if (rdotv <= 0) return 0;
 
-    uq0_16 baseSpecular = rdotv;
-    uq0_16 specular     = baseSpecular;
-    u16    exp          = material->shininess;
+    float baseSpecular = rdotv;
+    float specular     = rdotv;
+    u16   exp          = material->shininess;
     switch (exp) {
     case 128:
-        specular = uq0_16_mul(specular, specular);
-        specular = uq0_16_mul(specular, specular);
+        specular *= specular;
+        specular *= specular;
         __attribute__((fallthrough));
     case 32:
-        specular = uq0_16_mul(specular, specular);
+        specular *= specular;
         __attribute__((fallthrough));
     case 16:
-        specular = uq0_16_mul(specular, specular);
-        specular = uq0_16_mul(specular, specular);
-        specular = uq0_16_mul(specular, specular);
-        specular = uq0_16_mul(specular, specular);
+        specular *= specular;
+        specular *= specular;
+        specular *= specular;
+        specular *= specular;
+        __attribute__((fallthrough));
+    case 1:
         break;
     default:
         exp--;
         while (exp) {
-            if (exp & 1) specular = uq0_16_mul(specular, baseSpecular);
-            baseSpecular = uq0_16_mul(baseSpecular, baseSpecular);
+            if (exp & 1) specular *= baseSpecular;
+            baseSpecular *= baseSpecular;
             exp >>= 1;
         }
         break;
     }
 
-    return colorMul(material->specular, specular);
-}
-
-void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample) {
-    Vec3  offset = Vec3_sub(sample, ctx->hit->point);
-    float ndoto  = Vec3_dot(ctx->hit->normal, offset);
-    if (ndoto <= 0) return;
-
-    float   distance2 = Vec3_dot(offset, offset);
-    color_t shadow = shadowTransmission(ctx->hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
-    if (!shadow) return;
-
-    float invDistance = 1.0f / sqrtf(distance2);
-
-    Vec3 lightDir = Vec3_scale(offset, invDistance);
-
-    uq0_16  ndotl    = uq0_16_from_unitfloat(ndoto * invDistance);
-    color_t diffuse  = ndotl;
-    color_t specular = 0;
-    if (ctx->material->specular)
-        specular = phongSpecular(ndotl, ctx->ndotv, lightDir, ctx->viewDir, ctx->material);
-
-    color_t diffuseWeight  = colorMul(diffuse, shadow);
-    color_t specularWeight = colorMul(specular, shadow);
-    ColorAccumulator_addScaled(ctx->colAcc, ctx->baseColor, diffuseWeight);
-    ColorAccumulator_addScaled(ctx->colAcc, light->color, specularWeight);
+    return colorMul(material->specular, float2color(specular));
 }
