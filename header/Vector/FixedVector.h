@@ -8,20 +8,30 @@
 /* ************************************************************************** */
 
 typedef struct Vector2 {
-    float x;
-    float y;
+    q31_32 x;
+    q31_32 y;
 } Vec2;
 
-typedef struct {
-    q16_15 x;
-    q16_15 y;
-    q16_15 z;
+typedef struct Vector3 {
+    q31_32 x;
+    q31_32 y;
+    q31_32 z;
 } Vec3;
+
+#define VEC2_INIT(_x, _y)                                                                    \
+    (Vec2) {                                                                                       \
+        .x = Q31_32_FROM_FLOAT(_x), .y = Q31_32_FROM_FLOAT(_y)                                     \
+    }
+
+#define VEC3_INIT(_x, _y, _z)                                                                \
+    (Vec3) {                                                                                       \
+        .x = Q31_32_FROM_FLOAT(_x), .y = Q31_32_FROM_FLOAT(_y), .z = Q31_32_FROM_FLOAT(_z)         \
+    }
 
 /**
  * Initializes a Vec3
  */
-static inline Vec3 vec(q16_15 x, q16_15 y, q16_15 z) {
+static inline Vec3 vec(q31_32 x, q31_32 y, q31_32 z) {
     return (Vec3){
         .x = x,
         .y = y,
@@ -34,9 +44,9 @@ static inline Vec3 vec(q16_15 x, q16_15 y, q16_15 z) {
  */
 static inline Vec3 vec_from_float(float x, float y, float z) {
     return (Vec3){
-        .x = q16_15_from_float(x),
-        .y = q16_15_from_float(y),
-        .z = q16_15_from_float(z),
+        .x = q31_32_from_float(x),
+        .y = q31_32_from_float(y),
+        .z = q31_32_from_float(z),
     };
 }
 
@@ -45,9 +55,9 @@ static inline Vec3 vec_from_float(float x, float y, float z) {
  */
 static inline Vec3 Vec3_add(Vec3 a, Vec3 b) {
     return (Vec3){
-        .x = q16_15_add(a.x, b.x),
-        .y = q16_15_add(a.y, b.y),
-        .z = q16_15_add(a.z, b.z),
+        .x = q31_32_add(a.x, b.x),
+        .y = q31_32_add(a.y, b.y),
+        .z = q31_32_add(a.z, b.z),
     };
 }
 
@@ -56,9 +66,9 @@ static inline Vec3 Vec3_add(Vec3 a, Vec3 b) {
  */
 static inline Vec3 Vec3_sub(Vec3 a, Vec3 b) {
     return (Vec3){
-        .x = q16_15_sub(a.x, b.x),
-        .y = q16_15_sub(a.y, b.y),
-        .z = q16_15_sub(a.z, b.z),
+        .x = q31_32_sub(a.x, b.x),
+        .y = q31_32_sub(a.y, b.y),
+        .z = q31_32_sub(a.z, b.z),
     };
 }
 
@@ -67,9 +77,9 @@ static inline Vec3 Vec3_sub(Vec3 a, Vec3 b) {
  */
 static inline Vec3 Vec3_mul(Vec3 a, Vec3 b) {
     return (Vec3){
-        .x = q16_15_mul(a.x, b.x),
-        .y = q16_15_mul(a.y, b.y),
-        .z = q16_15_mul(a.z, b.z),
+        .x = q31_32_mul(a.x, b.x),
+        .y = q31_32_mul(a.y, b.y),
+        .z = q31_32_mul(a.z, b.z),
     };
 }
 
@@ -78,9 +88,9 @@ static inline Vec3 Vec3_mul(Vec3 a, Vec3 b) {
  */
 static inline Vec3 Vec3_cross(Vec3 v1, Vec3 v2) {
     return (Vec3){
-        .x = ((i64)v1.y * (i64)v2.z - (i64)v1.z * (i64)v2.y) >> Q16_15_SHIFT,
-        .y = ((i64)v1.z * (i64)v2.x - (i64)v1.x * (i64)v2.z) >> Q16_15_SHIFT,
-        .z = ((i64)v1.x * (i64)v2.y - (i64)v1.y * (i64)v2.x) >> Q16_15_SHIFT,
+        .x = q31_32_sub(q31_32_mul(v1.y, v2.z), q31_32_mul(v1.z, v2.y)),
+        .y = q31_32_sub(q31_32_mul(v1.z, v2.x), q31_32_mul(v1.x, v2.z)),
+        .z = q31_32_sub(q31_32_mul(v1.x, v2.y), q31_32_mul(v1.y, v2.x)),
     };
 }
 
@@ -88,17 +98,17 @@ static inline Vec3 Vec3_cross(Vec3 v1, Vec3 v2) {
  * Calculates the dot product of two Vec3
  */
 static inline q16_15 Vec3_dot(Vec3 a, Vec3 b) {
-    return ((i64)a.x * (i64)b.x + (i64)a.y * (i64)b.y + (i64)a.z * (i64)b.z) >> Q16_15_SHIFT;
+    return q31_32_add(q31_32_mul(a.x, b.x), q31_32_add(q31_32_mul(a.y, b.y), q31_32_mul(a.z, b.z)));
 }
 
 /**
  * Scales each axis of a Vec3 by a factor `s`
  */
-static inline Vec3 Vec3_scale(Vec3 v, q16_15 s) {
+static inline Vec3 Vec3_scale(Vec3 v, q31_32 s) {
     return (Vec3){
-        .x = q16_15_mul(v.x, s),
-        .y = q16_15_mul(v.y, s),
-        .z = q16_15_mul(v.z, s),
+        .x = q31_32_mul(v.x, s),
+        .y = q31_32_mul(v.y, s),
+        .z = q31_32_mul(v.z, s),
     };
 }
 
@@ -106,14 +116,14 @@ static inline Vec3 Vec3_scale(Vec3 v, q16_15 s) {
  * Calculates the length of a Vec3
  */
 static inline q16_15 Vec3_length(Vec3 v) {
-    return q16_15_sqrt(Vec3_dot(v, v));
+    return q31_32_sqrt(Vec3_dot(v, v));
 }
 
 /**
  * Calculates the inverse length of a Vec3
  */
 static inline q16_15 Vec3_invlength(Vec3 v) {
-    return q16_15_rsqrt(Vec3_dot(v, v));
+    return q31_32_rsqrt(Vec3_dot(v, v));
 }
 
 /**
@@ -145,7 +155,7 @@ static inline Vec3 Vec3_neg(Vec3 uv) {
  * @param n surface normal
  */
 static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
-    return Vec3_sub(d, Vec3_scale(n, 2.0 * Vec3_dot(d, n)));
+    return Vec3_sub(d, Vec3_scale(n, Q31_32_TWO * Vec3_dot(d, n)));
 }
 
 /**
@@ -160,16 +170,16 @@ static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
  * @return true if refraction occurs
  *         false if total internal reflection occurs
  */
-static inline int refract(Vec3 d, Vec3 n, q16_15 eta, Vec3* refracted) {
-    q16_15 cosI  = -Vec3_dot(n, d);
-    q16_15 eta2  = q16_15_mul(eta, eta);
-    q16_15 cosI2 = q16_15_mul(cosI, cosI);
-    q16_15 sin2T = q16_15_sub(eta2, q16_15_sub(Q16_15_ONE, cosI2));
+static inline int Vec3_refract(Vec3 d, Vec3 n, q31_32 eta, Vec3* refracted) {
+    q31_32 cosI  = -Vec3_dot(n, d);
+    q31_32 eta2  = q31_32_mul(eta, eta);
+    q31_32 cosI2 = q31_32_mul(cosI, cosI);
+    q31_32 sin2T = q31_32_sub(eta2, q31_32_sub(Q31_32_ONE, cosI2));
 
-    if (sin2T > Q16_15_ONE) return 0;
+    if (sin2T > Q31_32_ONE) return 0;
 
-    q16_15 cosT = q16_15_sqrt(Q16_15_ONE - sin2T);
-    q16_15 k    = q16_15_sub(q16_15_mul(eta, cosI), cosT);
+    q31_32 cosT = q31_32_sqrt(Q31_32_ONE - sin2T);
+    q31_32 k    = q31_32_sub(q31_32_mul(eta, cosI), cosT);
 
     *refracted = Vec3_add(Vec3_scale(d, eta), Vec3_scale(n, k));
     return 1;
