@@ -22,7 +22,6 @@ void Triangle_init(Triangle* tri, const Material* material, Vec3 a, Vec3 b, Vec3
     float d      = Vec3_dot(normal, a);
 
     tri->super = (Object){
-        .type     = TRIANGLE,
         .material = material,
         .vtable   = &triangle_vtable,
     };
@@ -68,7 +67,7 @@ static int Triangle_intersectAt(const Object* self, const Ray* ray, float maxDis
     if (fabsf(denom) < RAY_EPSILON) return 0;
 
     float numer = tri->planeD - Vec3_dot(tri->normal, ray->origin);
-    float dist = numer / denom;
+    float dist  = numer / denom;
     if (dist < 0.0f || dist >= maxDist) return 0;
 
     Vec3 p = Vec3_add(ray->origin, Vec3_scale(ray->direction, dist));

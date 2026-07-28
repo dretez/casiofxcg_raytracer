@@ -11,7 +11,7 @@ const LightVTable pointlight_vtable = {
 };
 
 void PointLight_init(PointLight* light, Vec3 posisition, Color color, float intensity) {
-    Light_init((Light*)light, &pointlight_vtable, LIGHT_POINT, posisition, color, intensity, 1);
+    Light_init((Light*)light, &pointlight_vtable, posisition, color, intensity, 1);
 }
 
 static void PointLight_initSampler(Light* self, Vec3 shadingPoint) {

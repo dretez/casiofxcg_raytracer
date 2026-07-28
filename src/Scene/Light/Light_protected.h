@@ -5,7 +5,6 @@
 
 void Light_init(Light*             light,
                 const LightVTable* vtable,
-                LightType          type,
                 Vec3               posisition,
                 Color              color,
                 float              intensity,

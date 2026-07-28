@@ -17,7 +17,6 @@ void Sphere_init(Sphere* sphere, const Material* material, Vec3 center, float ra
     *sphere = (Sphere){
         .super =
             (Object){
-                .type     = SPHERE,
                 .material = material,
                 .vtable   = &sphere_vtable,
             },

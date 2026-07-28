@@ -5,12 +5,6 @@
 #include "Fixed.h"
 #include "Vector/Vector.h"
 
-typedef enum {
-    LIGHT_POINT,
-    LIGHT_DISKAREA,
-    LIGHT_VOLUME,
-} LightType;
-
 typedef struct Light Light;
 
 typedef void (*Light_initSampler)(Light* self, Vec3 shadingPoint);
@@ -24,7 +18,6 @@ typedef struct LightVTable {
 typedef struct Light {
     const LightVTable* vtable;
     Vec3 pos;
-    LightType type;
     Color color;
 
     uq0_16 invsamplec;

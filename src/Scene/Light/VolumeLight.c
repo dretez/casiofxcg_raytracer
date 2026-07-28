@@ -31,7 +31,7 @@ static const Vec3 volumeSamples[VOLUME_SAMPLE_COUNT] = {
 void VolumeLight_init(VolumeLight* light, Vec3 position, Color color, float intensity, float radius) {
     Vec3* samples = malloc(sizeof(Vec3) * VOLUME_SAMPLE_COUNT);
     if (!samples) return;
-    Light_init((Light*)light, &volumelight_vtable, LIGHT_VOLUME, position, color, intensity, VOLUME_SAMPLE_COUNT);
+    Light_init((Light*)light, &volumelight_vtable, position, color, intensity, VOLUME_SAMPLE_COUNT);
     light->samples = samples;
     for (int i = 0; i < VOLUME_SAMPLE_COUNT; i++)
         light->samples[i] = Vec3_add(position, Vec3_scale(volumeSamples[i], radius));

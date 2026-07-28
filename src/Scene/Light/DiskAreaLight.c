@@ -22,7 +22,6 @@ static const Vec2 diskSamples[DISK_AREA_SAMPLE_COUNT] = {
 void DiskAreaLight_init(DiskAreaLight* light, Vec3 position, Color color, float intensity, float radius) {
     Light_init((Light*)light,
                &diskarealight_vtable,
-               LIGHT_DISKAREA,
                position,
                color,
                intensity,
