@@ -6,7 +6,7 @@
 #include "Scene/Light/Light.h"
 #include "Scene/Objects/Material.h"
 #include "Scene/Objects/Object.h"
-#include "Vector/FloatingVector.h"
+#include "Vector/Geometry.h"
 
 typedef struct LightingContext {
     const HitRecord*  hit;
@@ -18,15 +18,15 @@ typedef struct LightingContext {
     Vec3 shadowOrigin;
 
     Color  baseColor;
-    float ndotv;
+    geo_t ndotv;
 } LightingContext;
 
 i64 shadowTests = 0;
 i64 shadowHits  = 0;
 
-color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, float lightDist, const Scene* scene);
+color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigin, geo_t lightDist, const Scene* scene);
 
-color_t phongSpecular(float ndotl, float ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
+color_t phongSpecular(geo_t ndotl, geo_t ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
 
 void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample);
 
@@ -67,16 +67,16 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
 
 void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample) {
     Vec3  offset = Vec3_sub(sample, ctx->hit->point);
-    float ndoto  = Vec3_dot(ctx->hit->normal, offset);
-    if (ndoto <= 0) return;
+    geo_t ndoto  = Vec3_dot(ctx->hit->normal, offset);
+    if (ndoto <= GEO_ZERO) return;
 
-    float   distance2 = Vec3_dot(offset, offset);
+    geo_t   distance2 = Vec3_dot(offset, offset);
     color_t shadow = shadowTransmission(ctx->hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
     if (!shadow) return;
 
-    float invDistance = 1.0f / sqrtf(distance2);
+    geo_t invDistance = geo_rsqrt(distance2);
 
-    float ndotl = ndoto * invDistance;
+    geo_t ndotl = geo_mul(ndoto, invDistance);
 
     color_t diffuse  = uq0_16_from_unitfloat(ndotl);
     color_t diffuseWeight  = colorMul(diffuse, shadow);
@@ -90,7 +90,7 @@ void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sa
     }
 }
 
-color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin, float lightDist2, const Scene* scene) {
+color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin, geo_t lightDist2, const Scene* scene) {
     const Object* self      = hit->object;
     Ray           shadowRay = (Ray){
                   .origin    = shadowOrigin,
@@ -112,39 +112,39 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin,
     return transmission;
 }
 
-color_t phongSpecular(float ndotl, float ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material) {
-    float ldotv = Vec3_dot(lightDir, viewDir);
-    float rdotv = 2.0f * ndotl * ndotv - ldotv;
+color_t phongSpecular(geo_t ndotl, geo_t ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material) {
+    geo_t ldotv = Vec3_dot(lightDir, viewDir);
+    geo_t rdotv = geo_sub(geo_mul(geo_mul(GEO_TWO, ndotl), ndotv), ldotv);
     if (rdotv <= 0) return 0;
 
-    float baseSpecular = rdotv;
-    float specular     = rdotv;
+    geo_t baseSpecular = rdotv;
+    geo_t specular     = rdotv;
     u16   exp          = material->shininess;
     switch (exp) {
     case 128:
-        specular *= specular;
-        specular *= specular;
+        specular = geo_mul(specular, specular);
+        specular = geo_mul(specular, specular);
         __attribute__((fallthrough));
     case 32:
-        specular *= specular;
+        specular = geo_mul(specular, specular);
         __attribute__((fallthrough));
     case 16:
-        specular *= specular;
-        specular *= specular;
-        specular *= specular;
-        specular *= specular;
+        specular = geo_mul(specular, specular);
+        specular = geo_mul(specular, specular);
+        specular = geo_mul(specular, specular);
+        specular = geo_mul(specular, specular);
         __attribute__((fallthrough));
     case 1:
         break;
     default:
         exp--;
         while (exp) {
-            if (exp & 1) specular *= baseSpecular;
-            baseSpecular *= baseSpecular;
+            if (exp & 1) specular = geo_mul(specular, baseSpecular);
+            baseSpecular = geo_mul(baseSpecular, baseSpecular);
             exp >>= 1;
         }
         break;
     }
 
-    return colorMul(material->specular, float2color(specular));
+    return colorMul(material->specular, geo_to_color(specular));
 }

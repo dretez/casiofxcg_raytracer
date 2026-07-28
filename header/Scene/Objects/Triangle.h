@@ -2,7 +2,6 @@
 #define INCLUDE_SCENE_OBJECTS_TRIANGLE_H
 
 #include "Scene/Objects/Object.h"
-#include "Vector/FloatingVector.h"
 
 typedef struct {
     Object super;
@@ -15,12 +14,12 @@ typedef struct {
     Vec3 edgeNormal1;
     Vec3 edgeNormal2;
 
-    Vec3  normal;
-    float planeD;
+    Vec3   normal;
+    geo_t planeD;
 
-    float e0D;
-    float e1D;
-    float e2D;
+    geo_t e0D;
+    geo_t e1D;
+    geo_t e2D;
 } Triangle;
 
 void Triangle_init(Triangle* triangle, const Material* material, Vec3 a, Vec3 b, Vec3 c);

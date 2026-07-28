@@ -1,8 +1,7 @@
 #include "Engine/Intersection.h"
 #include "Scene/Objects/Object.h"
 #include "Scene/Ray.h"
-#include "Vector/FloatingVector.h"
-#include <float.h>
+#include "Vector/Geometry.h"
 
 static const HitRecord noHit = (HitRecord){
     .point  = (Vec3){ 0 },
@@ -17,12 +16,12 @@ static const HitRecord noHit = (HitRecord){
 };
 
 HitRecord intersectScene(Ray ray, const Scene* scene) {
-    float         nearest = FLT_MAX;
+    geo_t         nearest = GEO_MAX;
     const Object* hit     = NULL;
 
     for (int i = 0; i < scene->objectCount; i++) {
         const Object* obj = scene->objects[i];
-        float   t;
+        geo_t   t;
         if (!obj->vtable->intersectAt(obj, &ray, nearest, &t)) continue;
         nearest = t;
         hit     = obj;

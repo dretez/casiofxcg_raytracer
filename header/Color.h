@@ -88,6 +88,16 @@ static inline color_t float2color(float x) {
 }
 
 /**
+ * Convert a Q31.32 value to a fixed-point representation of a color channel.
+ *
+ * @param x Q31.32 value.
+ * @return Q0.15 value.
+ */
+static inline color_t q31_32_to_color(q31_32 x) {
+    return x >> 17;
+}
+
+/**
  * Convert a fixed-point color channel to floating point.
  *
  * @param x Fixed-point color channel value.

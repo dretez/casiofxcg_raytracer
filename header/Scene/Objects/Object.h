@@ -3,12 +3,11 @@
 
 #include "Scene/Objects/Material.h"
 #include "Scene/Ray.h"
-#include "Vector/FloatingVector.h"
 
 typedef struct Object Object;
 
-typedef int (*Object_intersect)(const Object* self, const Ray*, float);
-typedef int (*Object_intersectAt)(const Object* self, const Ray*, float, float*);
+typedef int (*Object_intersect)(const Object* self, const Ray*, geo_t);
+typedef int (*Object_intersectAt)(const Object* self, const Ray*, geo_t, geo_t*);
 typedef Vec3 (*Object_normal)(const Object* self, Vec3 hitPoint);
 
 typedef struct ObjectVTable {

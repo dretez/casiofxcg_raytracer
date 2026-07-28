@@ -1,15 +1,16 @@
 #ifndef INCLUDE_SCENE_OBJECTS_SPHERE_H
 #define INCLUDE_SCENE_OBJECTS_SPHERE_H
 
+#include "Fixed.h"
 #include "Scene/Objects/Object.h"
 #include "Vector/Vector.h"
 
 typedef struct {
     Object super;
     Vec3   center;
-    float  radius;
-    float  radius2; // radius squared
-    float  invradius;
+    geo_t radius;
+    geo_t radius2; // radius squared
+    geo_t invradius;
 } Sphere;
 
 void Sphere_init(Sphere* sphere, const Material* material, Vec3 center, float radius);

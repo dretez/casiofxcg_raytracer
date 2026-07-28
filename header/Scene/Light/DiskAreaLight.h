@@ -4,12 +4,12 @@
 #include "Scene/Light/Light.h"
 
 typedef struct DiskAreaLight {
-    Light light;
-    Vec3 u;
-    Vec3 v;
-    float radius;
+    Light  light;
+    Vec3   u;
+    Vec3   v;
+    geo_t radius;
 } DiskAreaLight;
 
-void DiskAreaLight_init(DiskAreaLight *light, Vec3 position, Color color, float intensity, float radius);
+void DiskAreaLight_init( DiskAreaLight* light, Vec3 position, Color color, float intensity, float radius);
 
 #endif /* ifndef INCLUDE_SCENE_LIGHT_AREALIGHT_H */

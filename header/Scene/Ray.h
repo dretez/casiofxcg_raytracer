@@ -8,6 +8,6 @@ typedef struct {
     Vec3 direction;
 } Ray;
 
-#define RAY_EPSILON 1e-3
+#define RAY_EPSILON GEO_FROM_FLOAT(1e-3)
 
 #endif /* ifndef INCLUDE_RAY_H */

@@ -7,8 +7,9 @@
 #include "Engine/Lighting.h"
 #include "assets/scenes.h"
 #include "Engine/Tracing.h"
+#include "gint/usb.h"
 
-#define MAX_DEPTH 3
+#define MAX_DEPTH 2
 
 static inline void check_menu_key() {
     key_event_t ev;
@@ -54,7 +55,7 @@ int render() {
             char buf[128];
             snprintf(buf, sizeof(buf), "Pass %d: %d s\n", pass, t);
             usb_fxlink_text(buf, 0);
-            snprintf(buf, sizeof(buf),"Shadow tests: %lld, Shadow hits: %lld\n", shadowTests, shadowHits);
+            snprintf(buf, sizeof(buf),"Shadow tests: %ld, Shadow hits: %ld\n", shadowTests, shadowHits);
             usb_fxlink_text(buf, 0);
         }
     }
@@ -62,7 +63,7 @@ exit:
     seconds = elapsed_seconds(start);
     char buf[128];
     snprintf(buf, sizeof(buf), "Render: %d s\n", seconds);
-    usb_fxlink_text(buf, 0);
+    if (usb_is_open()) usb_fxlink_text(buf, 0);
     Scene_free(&scene);
     return 0;
 }

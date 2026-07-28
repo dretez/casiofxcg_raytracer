@@ -58,6 +58,11 @@ typedef i64 q31_32;
 /** The approximate representation of 1/√2 in Q31.32 format. */
 #define Q31_32_RSQRT_2 ((q31_32)0x3037000500)
 
+/** Minimum representable value in Q0.15 format (-1). */
+#define Q31_32_MIN (INT64_MIN)
+/** Maximum representable value in Q0.15 format (1). */
+#define Q31_32_MAX (INT64_MAX)
+
 /* ********************************* UQ0.16 ********************************* */
 
 /** Unsigned Q0.16 fixed-point value. */

@@ -3,7 +3,7 @@
 #include "Engine/Intersection.h"
 #include "Engine/Lighting.h"
 #include "Engine/Shading.h"
-#include "Vector/FloatingVector.h"
+#include "Vector/Geometry.h"
 
 typedef struct TracingContext {
     HitRecord hit;
@@ -13,15 +13,15 @@ typedef struct {
     Vec3  normal;
     Vec3  refractOrigin;
     Vec3  reflectOrigin;
-    float cosI;
-    float eta;
+    geo_t cosI;
+    geo_t eta;
 } SurfaceInteraction;
 
 Color traceRefraction(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene);
 
 Color traceReflection(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene);
 
-static inline SurfaceInteraction outsideHit(const HitRecord* hit, float rdoth) {
+static inline SurfaceInteraction outsideHit(const HitRecord* hit, geo_t rdoth) {
     return (SurfaceInteraction){
         .normal        = hit->normal,
         .refractOrigin = hit->innerOffset,
@@ -31,7 +31,7 @@ static inline SurfaceInteraction outsideHit(const HitRecord* hit, float rdoth) {
     };
 }
 
-static inline SurfaceInteraction insideHit(const HitRecord* hit, float rdoth) {
+static inline SurfaceInteraction insideHit(const HitRecord* hit, geo_t rdoth) {
     return (SurfaceInteraction){
         .normal        = Vec3_neg(hit->normal),
         .refractOrigin = hit->outerOffset,
@@ -55,8 +55,8 @@ Color trace(Ray ray, int depth, const Scene* scene) {
     if (material->ambient || material->diffuse || material->specular)
         local = computeLighting(&hit, ray, scene);
     if (material->reflectivity || material->transparency) {
-        float              rdotn = hit.rdotn;
-        SurfaceInteraction si    = rdotn > 0 ? insideHit(&hit, rdotn) : outsideHit(&hit, rdotn);
+        geo_t              rdotn = hit.rdotn;
+        SurfaceInteraction si    = rdotn > GEO_ZERO ? insideHit(&hit, rdotn) : outsideHit(&hit, rdotn);
         if (material->reflectivity) reflected = traceReflection(ray, &si, depth, scene);
         if (material->transparency) refracted = traceRefraction(ray, &si, depth, scene);
     }
@@ -73,11 +73,11 @@ Color traceRefraction(Ray incoming, const SurfaceInteraction* si, int depth, con
         .origin    = si->refractOrigin,
         .direction = direction,
     };
-    return trace(ray, depth - 1, scene);
+    return trace(ray, depth, scene);
 }
 
 Color traceReflection(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene) {
-    Vec3 reflectionDir = Vec3_add(incoming.direction, Vec3_scale(si->normal, 2.0 * si->cosI));
+    Vec3 reflectionDir = Vec3_add(incoming.direction, Vec3_scale(si->normal, geo_mul(GEO_TWO, si->cosI)));
     Ray  reflectionRay = (Ray){
          .origin    = si->reflectOrigin,
          .direction = reflectionDir,
