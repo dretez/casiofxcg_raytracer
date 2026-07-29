@@ -3,7 +3,6 @@
 #include "Engine/Intersection.h"
 #include "Engine/Lighting.h"
 #include "Engine/Shading.h"
-#include "Vector/Geometry.h"
 
 typedef struct TracingContext {
     HitRecord hit;

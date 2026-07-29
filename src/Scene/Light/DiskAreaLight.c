@@ -43,7 +43,7 @@ static void DiskAreaLight_initSampler(Light* self, Vec3 shadingPoint) {
 
 static Vec3 DiskAreaLight_sample(const Light* self, u16 sample) {
     const DiskAreaLight* light = (const DiskAreaLight*)self;
-    float                rx    = diskSamples[sample].x;
-    float                ry    = diskSamples[sample].y;
+    geo_t                rx    = diskSamples[sample].x;
+    geo_t                ry    = diskSamples[sample].y;
     return Vec3_add(self->pos, Vec3_add(Vec3_scale(light->u, rx), Vec3_scale(light->v, ry)));
 }

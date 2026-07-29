@@ -1,8 +1,4 @@
 #include "Scene/Objects/Sphere.h"
-#include "Scene/Ray.h"
-#include "Vector/Geometry.h"
-
-#include <math.h>
 
 static int  Sphere_intersect(const Object* self, const Ray* ray, geo_t maxDist);
 static int  Sphere_intersectAt(const Object* self, const Ray* ray, geo_t maxDist, geo_t* t);
@@ -31,7 +27,7 @@ static int Sphere_intersect(const Object* self, const Ray* ray, geo_t maxDist2) 
 
     geo_t b = Vec3_dot(oc, ray->direction);
     if (b >= GEO_ZERO) return 0;
-    float c = geo_sub(Vec3_dot(oc, oc), sphere->radius2);
+    geo_t c = geo_sub(Vec3_dot(oc, oc), sphere->radius2);
     if (c < GEO_ZERO) return 1;
 
     geo_t disc = geo_sub(geo_mul(b, b), geo_mul(maxDist2, c));

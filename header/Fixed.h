@@ -444,10 +444,11 @@ static inline q16_15 q16_15_reciprocal(q16_15 x) {
  * @return Approximation of 1/sqrt(x).
  */
 static inline q16_15 q16_15_rsqrt(q16_15 x) {
-    if (x <= 0) return INT32_MAX;
+    if (x <= 0)
+        return INT32_MAX;
 
-    u32 ux    = (u32)x;
-    int msb   = 31 - __builtin_clz(ux);
+    u32 ux = (u32)x;
+    int msb = 31 - __builtin_clz(ux);
     int shift = Q16_15_SHIFT - 1 - msb;
     // normalize x to [0.5,1.0[
     q16_15 m = shift >= 0 ? x << shift : x >> -shift;
@@ -455,7 +456,7 @@ static inline q16_15 q16_15_rsqrt(q16_15 x) {
     q16_15 y = q16_15_from_float(1.912f) - q16_15_mul(q16_15_from_float(0.912f), m);
     // 2 iterations of Newton-Raphson
     for (int i = 0; i < 2; i++) {
-        q16_15 yy   = q16_15_mul(y, y);
+        q16_15 yy = q16_15_mul(y, y);
         q16_15 m_yy = q16_15_mul(m, yy);
 
         y = q16_15_mul(y, (3 * Q16_15_ONE - m_yy));
@@ -464,7 +465,8 @@ static inline q16_15 q16_15_rsqrt(q16_15 x) {
     // undo normalization
     y = shift >= 0 ? y << (shift / 2) : y >> (-shift / 2);
     // Handle odd powers of two.
-    if (shift & 1) y = q16_15_mul(y, shift > 0 ? Q16_15_SQRT_2 : Q16_15_RSQRT_2);
+    if (shift & 1)
+        y = q16_15_mul(y, shift > 0 ? Q16_15_SQRT_2 : Q16_15_RSQRT_2);
 
     return y;
 }
@@ -516,8 +518,8 @@ static inline q31_32 q31_32_sub(q31_32 a, q31_32 b) {
  */
 static inline q31_32 q31_32_mul(q31_32 a, q31_32 b) {
     bool neg = ((a ^ b) < 0);
-    u64  ua  = (a < 0) ? (~(u64)a + 1) : (u64)a;
-    u64  ub  = (b < 0) ? (~(u64)b + 1) : (u64)b;
+    u64 ua = (a < 0) ? (~(u64)a + 1) : (u64)a;
+    u64 ub = (b < 0) ? (~(u64)b + 1) : (u64)b;
 
     u64 al = (u32)ua;
     u64 ah = ua >> 32;
@@ -575,16 +577,16 @@ static const q31_32 q31_32_reciprocal_lut[256] = {
 };
 
 static inline q31_32 q31_32_reciprocal_seed(q31_32 x) {
-    u64 ux   = (u64)x;
+    u64 ux = (u64)x;
     u64 mask = -(ux >> 63);
-    ux       = (ux ^ mask) - mask;
+    ux = (ux ^ mask) - mask;
 
     int highest = 63 - __builtin_clzll(ux);
-    int shift   = 31 - highest;
+    int shift = 31 - highest;
 
-    u64    mant  = (shift >= 0 ? ux << shift : ux >> -shift);
-    int    index = ((mant >> 23) & 0xff);
-    q31_32 r     = q31_32_reciprocal_lut[index];
+    u64 mant = (shift >= 0 ? ux << shift : ux >> -shift);
+    int index = ((mant >> 23) & 0xff);
+    q31_32 r = q31_32_reciprocal_lut[index];
 
     r = shift >= 0 ? r << shift : r >> -shift;
 
@@ -622,47 +624,48 @@ static inline q31_32 q31_32_div(q31_32 a, q31_32 b) {
 }
 
 static const q31_32 q31_32_rsqrt_lut[256] = {
-    0x100000000, 0xff017d84, 0xfe05ec45, 0xfd0d3ddb, 0xfc176441, 0xfb2451d2, 0xfa33f941, 0xf9464d9c,
-    0xf85b4247,  0xf772caf6, 0xf68cdbaf, 0xf5a968c6, 0xf4c866d7, 0xf3e9cac9, 0xf30d89c8, 0xf2339944,
-    0xf15beef0,  0xf08680bd, 0xefb344dc, 0xeee231b7, 0xee133df5, 0xed466074, 0xec7b9047, 0xebb2c4ba,
-    0xeaebf549,  0xea2719a3, 0xe96429a7, 0xe8a31d66, 0xe7e3ed19, 0xe726912b, 0xe66b0230, 0xe5b138e4,
-    0xe4f92e2e,  0xe442db1c, 0xe38e38e4, 0xe2db40dd, 0xe229ec88, 0xe17a3584, 0xe0cc1597, 0xe01f86a7,
-    0xdf7482b8,  0xdecb03f1, 0xde230497, 0xdd7c7f0d, 0xdcd76dd3, 0xdc33cb85, 0xdb9192dc, 0xdaf0beab,
-    0xda5149e1,  0xd9b32f85, 0xd9166ab7, 0xd87af6b1, 0xd7e0cec3, 0xd747ee56, 0xd6b050e8, 0xd619f20f,
-    0xd584cd74,  0xd4f0ded8, 0xd45e220d, 0xd3cc92fc, 0xd33c2da1, 0xd2acee09, 0xd21ed057, 0xd191d0bd,
-    0xd105eb80,  0xd07b1cf8, 0xcff1618b, 0xcf68b5b1, 0xcee115f2, 0xce5a7ee7, 0xcdd4ed36, 0xcd505d96,
-    0xcccccccd,  0xcc4a37ad, 0xcbc89b18, 0xcb47f3fe, 0xcac83f5c, 0xca497a3c, 0xc9cba1b4, 0xc94eb2e9,
-    0xc8d2ab0b,  0xc8578754, 0xc7dd450e, 0xc763e18b, 0xc6eb5a2b, 0xc673ac57, 0xc5fcd583, 0xc586d330,
-    0xc511a2e6,  0xc49d423a, 0xc429aec8, 0xc3b6e63a, 0xc344e63f, 0xc2d3ac93, 0xc26336f8, 0xc1f3833d,
-    0xc1848f35,  0xc11658c0, 0xc0a8ddc3, 0xc03c1c2f, 0xbfd011f9, 0xbf64bd20, 0xbefa1bac, 0xbe902baa,
-    0xbe26eb32,  0xbdbe5860, 0xbd567158, 0xbcef3446, 0xbc889f5e, 0xbc22b0d8, 0xbbbd66f4, 0xbb58bff9,
-    0xbaf4ba35,  0xba9153fa, 0xba2e8ba3, 0xb9cc5f8f, 0xb96ace23, 0xb909d5cc, 0xb8a974fa, 0xb849aa25,
-    0xb7ea73ca,  0xb78bd069, 0xb72dbe8b, 0xb6d03cbc, 0xb673498f, 0xb616e399, 0xb5bb0976, 0xb55fb9c8,
-    0xb504f334,  0xb4aab464, 0xb450fc07, 0xb3f7c8d0, 0xb39f1978, 0xb346ecba, 0xb2ef4158, 0xb2981616,
-    0xb24169bd,  0xb1eb3b1b, 0xb1958901, 0xb1405244, 0xb0eb95bd, 0xb0975249, 0xb04386c9, 0xaff03221,
-    0xaf9d533a,  0xaf4ae8ff, 0xaef8f25f, 0xaea76e4e, 0xae565bc0, 0xae05b9b0, 0xadb5871b, 0xad65c300,
-    0xad166c63,  0xacc7824b, 0xac7903bf, 0xac2aefcf, 0xabdd4587, 0xab9003fd, 0xab432a44, 0xaaf6b775,
-    0xaaaaaaab,  0xaa5f0304, 0xaa13bfa0, 0xa9c8dfa4, 0xa97e6234, 0xa934467a, 0xa8ea8ba1, 0xa8a130d5,
-    0xa8583548,  0xa80f982c, 0xa7c758b5, 0xa77f761c, 0xa737ef9a, 0xa6f0c46b, 0xa6a9f3cd, 0xa6637d01,
-    0xa61d5f4a,  0xa5d799ec, 0xa5922c2f, 0xa54d155c, 0xa50854bd, 0xa4c3e9a2, 0xa47fd357, 0xa43c1130,
-    0xa3f8a27f,  0xa3b58699, 0xa372bcd7, 0xa330448f, 0xa2ee1d1e, 0xa2ac45e0, 0xa26abe34, 0xa2298579,
-    0xa1e89b12,  0xa1a7fe63, 0xa167aed0, 0xa127abc2, 0xa0e7f4a0, 0xa0a888d5, 0xa06967ce, 0xa02a90f7,
-    0x9fec03bf,  0x9fadbf98, 0x9f6fc3f4, 0x9f321046, 0x9ef4a404, 0x9eb77ea3, 0x9e7a9f9d, 0x9e3e066b,
-    0x9e01b287,  0x9dc5a36e, 0x9d89d89e, 0x9d4e5195, 0x9d130dd3, 0x9cd80cdc, 0x9c9d4e30, 0x9c62d156,
-    0x9c2895d1,  0x9bee9b29, 0x9bb4e0e6, 0x9b7b6691, 0x9b422bb3, 0x9b092fda, 0x9ad07291, 0x9a97f366,
-    0x9a5fb1e9,  0x9a27ada8, 0x99efe637, 0x99b85b26, 0x99810c09, 0x9949f875, 0x99131fff, 0x98dc823e,
-    0x98a61ec9,  0x986ff539, 0x983a0528, 0x98044e2f, 0x97cecfeb, 0x979989f7, 0x97647bf3, 0x972fa57b,
-    0x96fb062f,  0x96c69db0, 0x96926b9e, 0x965e6f9c, 0x962aa94c, 0x95f71853, 0x95c3bc55, 0x959094f7,
-    0x955da1e0,  0x952ae2b8, 0x94f85725, 0x94c5fed2, 0x9493d967, 0x9461e68f, 0x943025f5, 0x93fe9745
+    0x100000000, 0xfe8357a6, 0xfd0d3ddb, 0xfb9d82fb, 0xfa33f941, 0xf8d074ae, 0xf772caf6, 0xf61ad367,
+    0xf4c866d7,  0xf37b5f91, 0xf2339944, 0xf0f0f0f1, 0xefb344dc, 0xee7a747d, 0xed466074, 0xec16ea76,
+    0xeaebf549,  0xe9c564b0, 0xe8a31d66, 0xe785050e, 0xe66b0230, 0xe554fc26, 0xe442db1c, 0xe3348803,
+    0xe229ec88,  0xe122f30d, 0xe01f86a7, 0xdf1f930c, 0xde230497, 0xdd29c83d, 0xdc33cb85, 0xdb40fc86,
+    0xda5149e1,  0xd964a2b9, 0xd87af6b1, 0xd79435e5, 0xd6b050e8, 0xd5cf38bf, 0xd4f0ded8, 0xd415350e,
+    0xd33c2da1,  0xd265bb31, 0xd191d0bd, 0xd0c061a0, 0xcff1618b, 0xcf24c485, 0xce5a7ee7, 0xcd928558,
+    0xcccccccd,  0xcc094a82, 0xcb47f3fe, 0xca88bf0b, 0xc9cba1b4, 0xc9109249, 0xc8578754, 0xc7a0779f,
+    0xc6eb5a2b,  0xc6382635, 0xc586d330, 0xc4d758c2, 0xc429aec8, 0xc37dcd4e, 0xc2d3ac93, 0xc22b4502,
+    0xc1848f35,  0xc0df83f4, 0xc03c1c2f, 0xbf9a5100, 0xbefa1bac, 0xbe5b759b, 0xbdbe5860, 0xbd22bdad,
+    0xbc889f5e,  0xbbeff76d, 0xbb58bff9, 0xbac2f341, 0xba2e8ba3, 0xb99b839d, 0xb909d5cc, 0xb8797ce8,
+    0xb7ea73ca,  0xb75cb561, 0xb6d03cbc, 0xb6450503, 0xb5bb0976, 0xb5324570, 0xb4aab464, 0xb42451db,
+    0xb39f1978,  0xb31b06f1, 0xb2981616, 0xb21642c8, 0xb1958901, 0xb115e4cc, 0xb0975249, 0xb019cdac,
+    0xaf9d533a,  0xaf21df4d, 0xaea76e4e, 0xae2dfcb9, 0xadb5871b, 0xad3e0a12, 0xacc7824b, 0xac51ec83,
+    0xabdd4587,  0xab698a34, 0xaaf6b775, 0xaa84ca41, 0xaa13bfa0, 0xa9a394a8, 0xa934467a, 0xa8c5d246,
+    0xa8583548,  0xa7eb6cc8, 0xa77f761c, 0xa7144ea4, 0xa6a9f3cd, 0xa640630f, 0xa5d799ec, 0xa56f95f4,
+    0xa50854bd,  0xa4a1d3ed, 0xa43c1130, 0xa3d70a3d, 0xa372bcd7, 0xa30f26c6, 0xa2ac45e0, 0xa24a1802,
+    0xa1e89b12,  0xa187cd00, 0xa127abc2, 0xa0c83559, 0xa06967ce, 0xa00b4130, 0x9fadbf98, 0x9f50e127,
+    0x9ef4a404,  0x9e99065e, 0x9e3e066b, 0x9de3a269, 0x9d89d89e, 0x9d30a753, 0x9cd80cdc, 0x9c800791,
+    0x9c2895d1,  0x9bd1b602, 0x9b7b6691, 0x9b25a5ee, 0x9ad07291, 0x9a7bcaf9, 0x9a27ada8, 0x99d41929,
+    0x99810c09,  0x992e84dd, 0x98dc823e, 0x988b02cb, 0x983a0528, 0x97e987fc, 0x979989f7, 0x974a09cb,
+    0x96fb062f,  0x96ac7ddf, 0x965e6f9c, 0x9610da2b, 0x95c3bc55, 0x957714e9, 0x952ae2b8, 0x94df2499,
+    0x9493d967,  0x9448ffff, 0x93fe9745, 0x93b49e1f, 0x936b1377, 0x9321f63b, 0x92d9455d, 0x9290ffd1,
+    0x92492492,  0x9201b29c, 0x91baa8ed, 0x9174068a, 0x912dca7a, 0x90e7f3c5, 0x90a2817a, 0x905d72a8,
+    0x9018c663,  0x8fd47bc2, 0x8f9091dd, 0x8f4d07d2, 0x8f09dcbf, 0x8ec70fc7, 0x8e84a010, 0x8e428cc0,
+    0x8e00d502,  0x8dbf7804, 0x8d7e74f5, 0x8d3dcb09, 0x8cfd7973, 0x8cbd7f6d, 0x8c7ddc2e, 0x8c3e8ef5,
+    0x8bff9700,  0x8bc0f391, 0x8b82a3ea, 0x8b44a752, 0x8b06fd11, 0x8ac9a471, 0x8a8c9cbf, 0x8a4fe549,
+    0x8a137d60,  0x89d76458, 0x899b9984, 0x89601c3c, 0x8924ebda, 0x88ea07b7, 0x88af6f30, 0x887521a5,
+    0x883b1e76,  0x88016505, 0x87c7f4b8, 0x878eccf3, 0x8755ed1e, 0x871d54a4, 0x86e502ef, 0x86acf76d,
+    0x8675318c,  0x863db0bc, 0x8606746f, 0x85cf7c1a, 0x8598c730, 0x85625529, 0x852c257c, 0x84f637a4,
+    0x84c08b1b,  0x848b1f5e, 0x8455f3eb, 0x84210842, 0x83ec5be3, 0x83b7ee51, 0x8383bf0f, 0x834fcda2,
+    0x831c1990,  0x82e8a261, 0x82b5679f, 0x828268d2, 0x824fa586, 0x821d1d49, 0x81eacfa7, 0x81b8bc31,
+    0x8186e275,  0x81554206, 0x8123da76, 0x80f2ab59, 0x80c1b443, 0x8090f4cb, 0x80606c88, 0x80301b11
 };
 
 static inline q31_32 q31_32_rsqrt_seed(q31_32 x) {
     int highest = 63 - __builtin_clzll((u64)x);
-    int shift   = highest & ~1;
+    int shift = (highest - 32) & ~1;
 
-    q31_32 normalized = x >> shift;
+    q31_32 normalized = shift >= 0 ? x >> shift : x << -shift;
 
-    u64 index = ((u64)normalized >> 24) & 0xff;
+    u64 index = (((u64)normalized - Q31_32_ONE)) / (3ull << 24);
+    index = index > 255 ? 255 : index;
 
     q31_32 r = q31_32_rsqrt_lut[index];
 
@@ -682,15 +685,16 @@ static inline q31_32 q31_32_rsqrt_seed(q31_32 x) {
  * @return Approximation of 1/sqrt(x).
  */
 static inline q31_32 q31_32_rsqrt(q31_32 x) {
-    if (x <= 0) return INT32_MAX;
+    if (x <= 0)
+        return INT64_MAX;
 
     q31_32 r = q31_32_rsqrt_seed(x);
 
-    q31_32 rr  = q31_32_mul(r, r);
+    q31_32 rr = q31_32_mul(r, r);
     q31_32 xrr = q31_32_mul(x, rr);
     r = q31_32_mul(r, (3LL << 31) - (xrr >> 1));
 
-    rr  = q31_32_mul(r, r);
+    rr = q31_32_mul(r, r);
     xrr = q31_32_mul(x, rr);
     r = q31_32_mul(r, (3LL << 31) - (xrr >> 1));
 
@@ -845,8 +849,9 @@ static inline uq16_16 uq16_16_reciprocal(uq16_16 x) {
  * @return Approximation of 1/sqrt(x).
  */
 static inline uq16_16 uq16_16_rsqrt(uq16_16 x) {
-    if (x <= 0) return UINT32_MAX;
-    int msb   = 31 - __builtin_clz(x);
+    if (x <= 0)
+        return UINT32_MAX;
+    int msb = 31 - __builtin_clz(x);
     int shift = UQ16_16_SHIFT - 1 - msb;
     // normalize x to [0.5,1.0[
     uq16_16 m = shift >= 0 ? x << shift : x >> -shift;
@@ -854,7 +859,7 @@ static inline uq16_16 uq16_16_rsqrt(uq16_16 x) {
     uq16_16 y = uq16_16_from_float(1.912f) - uq16_16_mul(uq16_16_from_float(0.912f), m);
     // 2 iterations of Newton-Raphson
     for (int i = 0; i < 2; i++) {
-        uq16_16 yy  = uq16_16_mul(y, y);
+        uq16_16 yy = uq16_16_mul(y, y);
         uq16_16 myy = uq16_16_mul(m, yy);
 
         y = uq16_16_mul(y, (3 * UQ16_16_ONE - myy));
@@ -863,7 +868,8 @@ static inline uq16_16 uq16_16_rsqrt(uq16_16 x) {
     // undo normalization
     y = shift >= 0 ? y << (shift / 2) : y >> (-shift / 2);
     // Handle odd powers of two.
-    if (shift & 1) y = uq16_16_mul(y, shift > 0 ? UQ16_16_SQRT_2 : UQ16_16_RSQRT_2);
+    if (shift & 1)
+        y = uq16_16_mul(y, shift > 0 ? UQ16_16_SQRT_2 : UQ16_16_RSQRT_2);
 
     return y;
 }

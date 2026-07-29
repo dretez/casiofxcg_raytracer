@@ -1,7 +1,4 @@
 #include "Engine/Intersection.h"
-#include "Scene/Objects/Object.h"
-#include "Scene/Ray.h"
-#include "Vector/Geometry.h"
 
 static const HitRecord noHit = (HitRecord){
     .point  = (Vec3){ 0 },

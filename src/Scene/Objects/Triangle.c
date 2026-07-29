@@ -1,6 +1,4 @@
 #include "Scene/Objects/Triangle.h"
-#include "Scene/Ray.h"
-#include "Vector/Geometry.h"
 
 static int  Triangle_intersect(const Object* self, const Ray* ray, geo_t maxDist2);
 static int  Triangle_intersectAt(const Object* self, const Ray* ray, geo_t maxDist, geo_t* t);
@@ -17,7 +15,9 @@ void Triangle_init(Triangle* tri, const Material* material, Vec3 a, Vec3 b, Vec3
     Vec3 e1 = Vec3_sub(c, b);
     Vec3 e2 = Vec3_sub(a, c);
 
-    Vec3  normal = Vec3_normalize(Vec3_cross(e0, Vec3_sub(c, a)));
+    Vec3 e0N = Vec3_normalize(e0);
+    Vec3 e1N = Vec3_normalize(Vec3_sub(c, a));
+    Vec3  normal = Vec3_normalize(Vec3_cross(e0N, e1N));
     geo_t d      = Vec3_dot(normal, a);
 
     tri->super = (Object){

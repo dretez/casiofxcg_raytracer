@@ -86,14 +86,14 @@ static inline Vec3 Vec3_cross(Vec3 v1, Vec3 v2) {
 /**
  * Calculates the dot product of two Vec3
  */
-static inline q16_15 Vec3_dot(Vec3 a, Vec3 b) {
-    return geo_add(geo_mul(a.x, b.x), geo_add(geo_mul(a.y, b.y), geo_mul(a.z, b.z)));
+static inline geo_t Vec3_dot(Vec3 a, Vec3 b) {
+    return geo_add(geo_add(geo_mul(a.x, b.x), geo_mul(a.y, b.y)), geo_mul(a.z, b.z));
 }
 
 /**
  * Scales each axis of a Vec3 by a factor `s`
  */
-static inline Vec3 Vec3_scale(Vec3 v, q31_32 s) {
+static inline Vec3 Vec3_scale(Vec3 v, geo_t s) {
     return (Vec3){
         .x = geo_mul(v.x, s),
         .y = geo_mul(v.y, s),
@@ -104,14 +104,14 @@ static inline Vec3 Vec3_scale(Vec3 v, q31_32 s) {
 /**
  * Calculates the length of a Vec3
  */
-static inline q16_15 Vec3_length(Vec3 v) {
+static inline geo_t Vec3_length(Vec3 v) {
     return geo_sqrt(Vec3_dot(v, v));
 }
 
 /**
  * Calculates the inverse length of a Vec3
  */
-static inline q16_15 Vec3_invlength(Vec3 v) {
+static inline geo_t Vec3_invlength(Vec3 v) {
     return geo_rsqrt(Vec3_dot(v, v));
 }
 
@@ -144,7 +144,7 @@ static inline Vec3 Vec3_neg(Vec3 uv) {
  * @param n surface normal
  */
 static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
-    return Vec3_sub(d, Vec3_scale(n, GEO_TWO * Vec3_dot(d, n)));
+    return Vec3_sub(d, Vec3_scale(n, geo_mul(GEO_TWO, Vec3_dot(d, n))));
 }
 
 /**

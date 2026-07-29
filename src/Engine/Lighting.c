@@ -1,13 +1,5 @@
 #include "Engine/Lighting.h"
 
-#include "Color.h"
-#include "Fixed.h"
-#include "HitRecord.h"
-#include "Scene/Light/Light.h"
-#include "Scene/Objects/Material.h"
-#include "Scene/Objects/Object.h"
-#include "Vector/Geometry.h"
-
 typedef struct LightingContext {
     const HitRecord*  hit;
     const Material*   material;
@@ -78,9 +70,8 @@ void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sa
 
     geo_t ndotl = geo_mul(ndoto, invDistance);
 
-    color_t diffuse  = uq0_16_from_unitfloat(ndotl);
-    color_t diffuseWeight  = colorMul(diffuse, shadow);
-    ColorAccumulator_addScaled(ctx->colAcc, ctx->baseColor, diffuseWeight);
+    color_t diffuse  = geo_to_color(geo_mul(color_to_geo(shadow), ndotl));
+    ColorAccumulator_addScaled(ctx->colAcc, ctx->baseColor, diffuse);
 
     if (ctx->material->specular) {
         Vec3 lightDir = Vec3_scale(offset, invDistance);
