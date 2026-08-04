@@ -40,8 +40,16 @@ static inline geo_t geo_add(geo_t a, geo_t b) {
     return q31_32_add(a, b);
 }
 
+static inline geo_t geo_add_fast(geo_t a, geo_t b) {
+    return a + b;
+}
+
 static inline geo_t geo_sub(geo_t a, geo_t b) {
     return q31_32_sub(a, b);
+}
+
+static inline geo_t geo_sub_fast(geo_t a, geo_t b) {
+    return a - b;
 }
 
 static inline geo_t geo_mul(geo_t a, geo_t b) {
@@ -62,6 +70,18 @@ static inline geo_t geo_sqrt(geo_t x) {
 
 static inline geo_t geo_rsqrt(geo_t x) {
     return q31_32_rsqrt(x);
+}
+
+static inline geo_t geo_mul_exp_2(geo_t x, uint exp) {
+    return x << exp;
+}
+
+static inline geo_t geo_div_exp_2(geo_t x, uint exp) {
+    return x >> exp;
+}
+
+static inline bool geo_samesign(geo_t a, geo_t b) {
+    return (a ^ b) >= 0;
 }
 
 #endif /* ifndef INCLUDE_VECTOR_GEOMETRY */
