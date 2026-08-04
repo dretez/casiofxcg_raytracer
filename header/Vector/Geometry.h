@@ -2,7 +2,7 @@
 #define INCLUDE_VECTOR_GEOMETRY
 
 #include "Color.h"
-#include "Fixed.h"
+#include "Fixed/Q31_32.h"
 
 typedef q31_32 geo_t;
 

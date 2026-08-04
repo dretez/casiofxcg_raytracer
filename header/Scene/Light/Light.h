@@ -2,7 +2,6 @@
 #define INCLUDE_LIGHT_LIGHT_H
 
 #include "Color.h"
-#include "Fixed.h"
 #include "Vector/Vector.h"
 
 typedef struct Light Light;

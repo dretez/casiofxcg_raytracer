@@ -3,7 +3,9 @@
 
 #include <gint/defs/types.h>
 
-#include "Fixed.h"
+#include "Fixed/UQ0_16.h"
+#include "Fixed/UQ16_16.h"
+#include "Fixed/Q31_32.h"
 
 /* ************************************************************************** */
 /* ********************** DEFINITION & INITIALIZATION *********************** */

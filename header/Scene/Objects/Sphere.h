@@ -1,7 +1,6 @@
 #ifndef INCLUDE_SCENE_OBJECTS_SPHERE_H
 #define INCLUDE_SCENE_OBJECTS_SPHERE_H
 
-#include "Fixed.h"
 #include "Scene/Objects/Object.h"
 #include "Vector/Vector.h"
 
