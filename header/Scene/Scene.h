@@ -6,8 +6,8 @@
 #include "Scene/Objects/Object.h"
 
 typedef struct {
-    Object** objects;
-    int      objectCount;
+    Object* objects;
+    int     objectCount;
 
     Light** lights;
     int     lightCount;

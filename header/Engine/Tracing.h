@@ -7,6 +7,8 @@
 #include "HitRecord.h"
 #include "Scene/Ray.h"
 
-Color trace(Ray ray, int depth, const Scene* scene);
+Color trace(const Ray* ray, const int depth, const Scene* scene);
+
+extern u32 raycount;
 
 #endif /* ifndef INCLUDE_ENGINE_TRACING_H */

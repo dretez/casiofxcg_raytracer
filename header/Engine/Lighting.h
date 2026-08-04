@@ -7,7 +7,7 @@
 #include "HitRecord.h"
 #include "Scene/Ray.h"
 
-Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene);
+Color computeLighting(const HitRecord* hit, const Ray* ray, const Scene* scene);
 
 extern i64 shadowTests;
 extern i64 shadowHits;

@@ -50,6 +50,31 @@ static inline Vec3 Vec3_add(Vec3 a, Vec3 b) {
     };
 }
 
+static inline Vec3 Vec3_add_fast(Vec3 a, Vec3 b) {
+    return (Vec3){
+        .x = a.x + b.x,
+        .y = a.y + b.y,
+        .z = a.z + b.z,
+    };
+}
+
+static inline Vec3 Vec3_addScaled(Vec3 a, Vec3 b, geo_t s) {
+    geo_t x = geo_mul(b.x, s);
+    x       = geo_add(a.x, x);
+    geo_t y = geo_mul(b.y, s);
+    y       = geo_add(a.y, y);
+    geo_t z = geo_mul(b.z, s);
+    z       = geo_add(a.z, z);
+    return (Vec3){ .x = x, .y = y, .z = z };
+}
+
+static inline Vec3 Vec3_addScaled_fast(Vec3 a, Vec3 b, geo_t s) {
+    geo_t x = geo_mul(b.x, s) + a.x;
+    geo_t y = geo_mul(b.y, s) + a.y;
+    geo_t z = geo_mul(b.z, s) + a.z;
+    return (Vec3){ .x = x, .y = y, .z = z };
+}
+
 /**
  * Calculates the element-wise difference between two Vec3
  */
@@ -58,6 +83,14 @@ static inline Vec3 Vec3_sub(Vec3 a, Vec3 b) {
         .x = geo_sub(a.x, b.x),
         .y = geo_sub(a.y, b.y),
         .z = geo_sub(a.z, b.z),
+    };
+}
+
+static inline Vec3 Vec3_sub_fast(Vec3 a, Vec3 b) {
+    return (Vec3){
+        .x = a.x - b.x,
+        .y = a.y - b.y,
+        .z = a.z - b.z,
     };
 }
 
@@ -76,18 +109,28 @@ static inline Vec3 Vec3_mul(Vec3 a, Vec3 b) {
  * Calculates the cross product of two Vec3
  */
 static inline Vec3 Vec3_cross(Vec3 v1, Vec3 v2) {
-    return (Vec3){
-        .x = geo_sub(geo_mul(v1.y, v2.z), geo_mul(v1.z, v2.y)),
-        .y = geo_sub(geo_mul(v1.z, v2.x), geo_mul(v1.x, v2.z)),
-        .z = geo_sub(geo_mul(v1.x, v2.y), geo_mul(v1.y, v2.x)),
-    };
+    geo_t x = geo_mul(v1.y, v2.z);
+    x       = geo_sub(x, geo_mul(v1.z, v2.y));
+    geo_t y = geo_mul(v1.z, v2.x);
+    y       = geo_sub(y, geo_mul(v1.x, v2.z));
+    geo_t z = geo_mul(v1.x, v2.y);
+    z       = geo_sub(z, geo_mul(v1.y, v2.x));
+    return (Vec3){ .x = x, .y = y, .z = z };
 }
 
 /**
  * Calculates the dot product of two Vec3
  */
 static inline geo_t Vec3_dot(Vec3 a, Vec3 b) {
-    return geo_add(geo_add(geo_mul(a.x, b.x), geo_mul(a.y, b.y)), geo_mul(a.z, b.z));
+    geo_t c = geo_mul(a.x, b.x);
+    c       = geo_add(c, geo_mul(a.y, b.y));
+    return geo_add(c, geo_mul(a.z, b.z));
+}
+
+static inline geo_t Vec3_dot_fast(Vec3 a, Vec3 b) {
+    geo_t c = geo_mul(a.x, b.x);
+    c       = geo_add_fast(c, geo_mul(a.y, b.y));
+    return geo_add_fast(c, geo_mul(a.z, b.z));
 }
 
 /**
@@ -143,8 +186,8 @@ static inline Vec3 Vec3_neg(Vec3 uv) {
  * @param d incoming direction
  * @param n surface normal
  */
-static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
-    return Vec3_sub(d, Vec3_scale(n, geo_mul(GEO_TWO, Vec3_dot(d, n))));
+static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n, geo_t cosI) {
+    return Vec3_addScaled_fast(d, n, geo_mul_exp_2(cosI, 1));
 }
 
 /**
@@ -162,14 +205,14 @@ static inline Vec3 Vec3_reflect(Vec3 d, Vec3 n) {
 static inline int Vec3_refract(Vec3 d, Vec3 n, geo_t cosI, geo_t eta, Vec3* refracted) {
     geo_t eta2  = geo_mul(eta, eta);
     geo_t cosI2 = geo_mul(cosI, cosI);
-    geo_t sin2T = geo_mul(eta2, geo_sub(GEO_ONE, cosI2));
+    geo_t sin2T = geo_mul(eta2, geo_sub_fast(GEO_ONE, cosI2));
 
     if (sin2T > GEO_ONE) return 0;
 
-    geo_t cosT = geo_sqrt(geo_sub(GEO_ONE, sin2T));
-    geo_t k    = geo_sub(geo_mul(eta, cosI), cosT);
+    geo_t cosT = geo_sqrt(geo_sub_fast(GEO_ONE, sin2T));
+    geo_t k    = geo_sub_fast(geo_mul(eta, cosI), cosT);
 
-    *refracted = Vec3_add(Vec3_scale(d, eta), Vec3_scale(n, k));
+    *refracted = Vec3_addScaled_fast(Vec3_scale(d, eta), n, k);
     return 1;
 }
 

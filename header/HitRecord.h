@@ -8,11 +8,12 @@ typedef struct {
     Vec3 point;
     Vec3 normal;
 
-    Vec3          offset;
-    Vec3          innerOffset;
-    Vec3          outerOffset;
+    Vec3 outerOffset;
+    Vec3 innerOffset;
+
+    geo_t rdotn;
+
     const Object* object;
-    geo_t         rdotn;
 } HitRecord;
 
 #endif /* ifndef INCLUDE_HITRECORD_H */

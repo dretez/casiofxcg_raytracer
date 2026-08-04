@@ -6,6 +6,6 @@
 #include "HitRecord.h"
 #include "Scene/Ray.h"
 
-HitRecord intersectScene(Ray ray, const Scene* scene);
+HitRecord intersectScene(const Ray* ray, const Scene* scene);
 
 #endif /* ifndef INCLUDE_ENGINE_INTERSECTION_H */

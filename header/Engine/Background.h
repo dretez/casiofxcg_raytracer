@@ -4,6 +4,6 @@
 #include "Color.h"
 #include "Scene/Ray.h"
 
-Color background(Ray ray);
+Color background(const Ray* ray);
 
 #endif /* ifndef INCLUDE_ENGINE_BACKGROUND_H */
