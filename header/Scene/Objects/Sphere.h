@@ -5,14 +5,13 @@
 #include "Vector/Vector.h"
 
 typedef struct {
-    Object super;
-    Vec3   center;
+    Vec3  center;
     geo_t radius;
     geo_t radius2; // radius squared
     geo_t invradius;
 } Sphere;
 
-void Sphere_init(Sphere* sphere, const Material* material, Vec3 center, float radius);
+void Sphere_init(Sphere* sphere, Vec3 center, float radius);
 
 extern const ObjectVTable sphere_vtable;
 

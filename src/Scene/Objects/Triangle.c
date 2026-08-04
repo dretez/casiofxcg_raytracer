@@ -1,8 +1,8 @@
 #include "Scene/Objects/Triangle.h"
 
-static int  Triangle_intersect(const Object* self, const Ray* ray, geo_t maxDist2);
-static int  Triangle_intersectAt(const Object* self, const Ray* ray, geo_t maxDist, geo_t* t);
-static Vec3 Triangle_normal(const Object* self, Vec3 hitPoint);
+static int  Triangle_intersect(const ObjectData* self, const Ray* ray, geo_t maxDist2);
+static int  Triangle_intersectAt(const ObjectData* self, const Ray* ray, geo_t maxDist, geo_t* t);
+static Vec3 Triangle_normal(const ObjectData* self, Vec3 hitPoint);
 
 const ObjectVTable triangle_vtable = {
     .intersect   = Triangle_intersect,
@@ -10,37 +10,28 @@ const ObjectVTable triangle_vtable = {
     .normal      = Triangle_normal,
 };
 
-void Triangle_init(Triangle* tri, const Material* material, Vec3 a, Vec3 b, Vec3 c) {
+void Triangle_init(Triangle* tri, Vec3 a, Vec3 b, Vec3 c) {
     Vec3 e0 = Vec3_sub(b, a);
     Vec3 e1 = Vec3_sub(c, b);
     Vec3 e2 = Vec3_sub(a, c);
 
-    Vec3 e0N = Vec3_normalize(e0);
-    Vec3 e1N = Vec3_normalize(Vec3_sub(c, a));
+    Vec3  e0N    = Vec3_normalize(e0);
+    Vec3  e1N    = Vec3_normalize(Vec3_sub(c, a));
     Vec3  normal = Vec3_normalize(Vec3_cross(e0N, e1N));
     geo_t d      = Vec3_dot(normal, a);
-
-    tri->super = (Object){
-        .material = material,
-        .vtable   = &triangle_vtable,
-    };
-    tri->v0 = a;
-    tri->v1 = b;
-    tri->v2 = c;
 
     tri->normal = normal;
     tri->planeD = d;
 
     tri->edgeNormal0 = Vec3_cross(normal, e0);
+    tri->e0D         = Vec3_dot(tri->edgeNormal0, a);
     tri->edgeNormal1 = Vec3_cross(normal, e1);
+    tri->e1D         = Vec3_dot(tri->edgeNormal1, b);
     tri->edgeNormal2 = Vec3_cross(normal, e2);
-
-    tri->e0D = Vec3_dot(tri->edgeNormal0, tri->v0);
-    tri->e1D = Vec3_dot(tri->edgeNormal1, tri->v1);
-    tri->e2D = Vec3_dot(tri->edgeNormal2, tri->v2);
+    tri->e2D         = Vec3_dot(tri->edgeNormal2, c);
 }
 
-static int Triangle_intersect(const Object* self, const Ray* ray, geo_t maxDist2) {
+static int Triangle_intersect(const ObjectData* self, const Ray* ray, geo_t maxDist2) {
     (void)maxDist2; // silence unused argument warning
     const Triangle* tri   = (const Triangle*)self;
     geo_t           denom = Vec3_dot(tri->normal, ray->direction);
@@ -59,7 +50,7 @@ static int Triangle_intersect(const Object* self, const Ray* ray, geo_t maxDist2
            Vec3_dot(tri->edgeNormal2, p) >= tri->e2D;
 }
 
-static int Triangle_intersectAt(const Object* self, const Ray* ray, geo_t maxDist, geo_t* t) {
+static int Triangle_intersectAt(const ObjectData* self, const Ray* ray, geo_t maxDist, geo_t* t) {
     const Triangle* tri = (const Triangle*)self;
 
     geo_t denom = Vec3_dot(tri->normal, ray->direction);
@@ -77,7 +68,7 @@ static int Triangle_intersectAt(const Object* self, const Ray* ray, geo_t maxDis
     return 1;
 }
 
-static Vec3 Triangle_normal(const Object* obj, Vec3 hitPoint) {
+static Vec3 Triangle_normal(const ObjectData* self, Vec3 hitPoint) {
     (void)hitPoint; // silence unused argument warning
-    return ((Triangle*)obj)->normal;
+    return ((Triangle*)self)->normal;
 }

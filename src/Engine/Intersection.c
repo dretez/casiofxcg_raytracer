@@ -12,21 +12,22 @@ static const HitRecord noHit = (HitRecord){
     .object = NULL,
 };
 
-HitRecord intersectScene(Ray ray, const Scene* scene) {
+HitRecord intersectScene(const Ray* ray, const Scene* scene) {
     geo_t         nearest = GEO_MAX;
     const Object* hit     = NULL;
+    Object* objects = scene->objects;
 
-    for (int i = 0; i < scene->objectCount; i++) {
-        const Object* obj = scene->objects[i];
+    for (int i = 0, count = scene->objectCount; i < count; i++) {
+        const Object* obj = &objects[i];
         geo_t   t;
-        if (!obj->vtable->intersectAt(obj, &ray, nearest, &t)) continue;
+        if (!obj->vtable->intersectAt(obj->data, ray, nearest, &t)) continue;
         nearest = t;
         hit     = obj;
     }
 
     if (!hit) return noHit;
-    Vec3 hitPoint = Vec3_add(ray.origin, Vec3_scale(ray.direction, nearest));
-    Vec3 normal   = hit->vtable->normal(hit, hitPoint);
+    Vec3 hitPoint = Vec3_add(ray->origin, Vec3_scale(ray->direction, nearest));
+    Vec3 normal   = hit->vtable->normal(hit->data, hitPoint);
     Vec3 offset   = Vec3_scale(normal, RAY_EPSILON);
 
     return (HitRecord){
@@ -36,7 +37,7 @@ HitRecord intersectScene(Ray ray, const Scene* scene) {
         .offset = offset,
         .innerOffset = Vec3_sub(hitPoint, offset),
         .outerOffset = Vec3_add(hitPoint, offset),
-        .rdotn = Vec3_dot(ray.direction, normal),
+        .rdotn = Vec3_dot(ray->direction, normal),
 
         .object = hit,
     };

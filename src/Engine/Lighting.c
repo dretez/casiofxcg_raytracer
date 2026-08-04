@@ -1,15 +1,13 @@
 #include "Engine/Lighting.h"
 
 typedef struct LightingContext {
-    const HitRecord*  hit;
-    const Material*   material;
     const Scene*      scene;
     ColorAccumulator* colAcc;
 
     Vec3 viewDir;
     Vec3 shadowOrigin;
 
-    Color  baseColor;
+    Color baseColor;
     geo_t ndotv;
 } LightingContext;
 
@@ -22,15 +20,13 @@ color_t phongSpecular(geo_t ndotl, geo_t ndotv, Vec3 lightDir, Vec3 viewDir, con
 
 void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample);
 
-Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
+Color computeLighting(const HitRecord* hit, const Ray* ray, const Scene* scene) {
     const Material* material = hit->object->material;
 
     Color           result  = Color_scale(material->color, material->ambient);
-    Vec3            viewDir = Vec3_neg(ray.direction);
+    Vec3            viewDir = Vec3_neg(ray->direction);
     LightingContext ctx     = (LightingContext){
-        .hit      = hit,
-        .material = hit->object->material,
-        .scene    = scene,
+        .scene = scene,
 
         .viewDir      = viewDir,
         .shadowOrigin = hit->outerOffset,
@@ -48,7 +44,7 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
         ctx.colAcc    = &lightContribution;
 
         for (int s = 0; s < light->samplec; s++)
-            computeSample(&ctx, light, light->vtable->sample(light, s));
+            computeSample(hit, material, &ctx, light, light->vtable->sample(light, s));
 
         ColorAccumulator_scale(&lightContribution, light->invsamplec);
         result = Color_add(result, ColorAccumulator_toColor(&lightContribution));
@@ -57,25 +53,29 @@ Color computeLighting(const HitRecord* hit, Ray ray, const Scene* scene) {
     return result;
 }
 
-void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample) {
+void computeSample(const HitRecord*       hit,
+                   const Material*        material,
+                   const LightingContext* ctx,
+                   const Light*           light,
+                   const Vec3             sample) {
     Vec3  offset = Vec3_sub(sample, ctx->hit->point);
     geo_t ndoto  = Vec3_dot(ctx->hit->normal, offset);
     if (ndoto <= GEO_ZERO) return;
 
     geo_t   distance2 = Vec3_dot(offset, offset);
-    color_t shadow = shadowTransmission(ctx->hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
+    color_t shadow = shadowTransmission(hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
     if (!shadow) return;
 
     geo_t invDistance = geo_rsqrt(distance2);
 
     geo_t ndotl = geo_mul(ndoto, invDistance);
 
-    color_t diffuse  = geo_to_color(geo_mul(color_to_geo(shadow), ndotl));
+    color_t diffuse = geo_to_color(geo_mul(color_to_geo(shadow), ndotl));
     ColorAccumulator_addScaled(ctx->colAcc, ctx->baseColor, diffuse);
 
-    if (ctx->material->specular) {
-        Vec3 lightDir = Vec3_scale(offset, invDistance);
-        color_t specular = phongSpecular(ndotl, ctx->ndotv, lightDir, ctx->viewDir, ctx->material);
+    if (material->specular) {
+        Vec3    lightDir       = Vec3_scale(offset, invDistance);
+        color_t specular       = phongSpecular(ndotl, ctx->ndotv, lightDir, ctx->viewDir, material);
         color_t specularWeight = colorMul(specular, shadow);
         ColorAccumulator_addScaled(ctx->colAcc, light->color, specularWeight);
     }
@@ -90,10 +90,10 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin,
 
     color_t transmission = COLOR_ONE;
     for (int i = 0; i < scene->objectCount; i++) {
-        const Object* obj = scene->objects[i];
+        const Object* obj = &scene->objects[i];
         if (obj == self) continue;
         shadowTests++;
-        if (!obj->vtable->intersect(obj, &shadowRay, lightDist2)) continue;
+        if (!obj->vtable->intersect(obj->data, &shadowRay, lightDist2)) continue;
         shadowHits++;
         color_t transparency = obj->material->transparency;
         if (!transparency) return 0;

@@ -4,11 +4,11 @@
 #include "Scene/Objects/Material.h"
 #include "Scene/Ray.h"
 
-typedef struct Object Object;
+typedef void ObjectData;
 
-typedef int (*Object_intersect)(const Object* self, const Ray*, geo_t);
-typedef int (*Object_intersectAt)(const Object* self, const Ray*, geo_t, geo_t*);
-typedef Vec3 (*Object_normal)(const Object* self, Vec3 hitPoint);
+typedef int (*Object_intersect)(const ObjectData* data, const Ray*, geo_t);
+typedef int (*Object_intersectAt)(const ObjectData* data, const Ray*, geo_t, geo_t*);
+typedef Vec3 (*Object_normal)(const ObjectData* data, Vec3 hitPoint);
 
 typedef struct ObjectVTable {
     const Object_intersect   intersect;
@@ -16,9 +16,10 @@ typedef struct ObjectVTable {
     const Object_normal      normal;
 } ObjectVTable;
 
-struct Object {
+typedef struct Object {
     const ObjectVTable* vtable;
     const Material*     material;
-};
+    ObjectData*         data;
+} Object;
 
 #endif /* ifndef INCLUDE_OBJECTS_OBJECT_H */
