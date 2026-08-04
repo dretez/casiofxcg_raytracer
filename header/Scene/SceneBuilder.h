@@ -1,19 +1,20 @@
 #ifndef INCLUDE_SCENEBUILDER_H
 #define INCLUDE_SCENEBUILDER_H
 
-#include "Color.h"
-#include "Scene/Camera.h"
-#include "Scene/Objects/Material.h"
+#include "Arena.h"
 #include "Scene/Scene.h"
 #include "utils.h"
 
-DEFINE_LIST_STRUCT(Object*, ObjectList);
+DEFINE_LIST_STRUCT(Object, ObjectList);
 DEFINE_LIST_STRUCT(Light*, LightList);
 
 typedef struct {
     ObjectList objects;
-    LightList  lights;
-    Camera     camera;
+    Arena*     spheres;
+    Arena*     triangles;
+
+    LightList lights;
+    Camera    camera;
 } SceneBuilder;
 
 void SceneBuilder_init(SceneBuilder* builder);

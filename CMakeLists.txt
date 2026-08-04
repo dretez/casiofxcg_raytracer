@@ -15,6 +15,7 @@ find_package(Gint 2.9 REQUIRED)
 set(SOURCES
   src/Renderer.c
   src/main.c
+  src/Arena.c
 
   src/Scene/Camera.c
   src/Scene/Scene.c

@@ -14,7 +14,7 @@
  */
 #define DEFINE_LIST_STRUCT(type, name)                                                             \
     typedef struct name {                                                                          \
-        type* items;                                                                               \
+        type*  items;                                                                              \
         size_t count;                                                                              \
         size_t alloced;                                                                            \
     } name
@@ -25,12 +25,12 @@
  */
 #define LIST_INITIALIZE(type) (type){ .items = NULL, .count = 0, .alloced = 0 }
 
-typedef uint8_t u8;
+typedef uint8_t  u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-typedef int8_t i8;
+typedef int8_t  i8;
 typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
@@ -49,9 +49,9 @@ typedef unsigned char uchar;
 #define list_add(list, item_type, item, alloc_error_code)                                          \
     do {                                                                                           \
         if (list.count >= list.alloced) {                                                          \
-            size_t newCapacity = list.alloced == 0 ? 8 : list.alloced * 2;                         \
-            item_type* aux = list.items;                                                           \
-            list.items = realloc(list.items, newCapacity * sizeof(item_type));                     \
+            size_t     newCapacity = list.alloced == 0 ? 8 : list.alloced * 2;                     \
+            item_type* aux         = list.items;                                                   \
+            list.items             = realloc(list.items, newCapacity * sizeof(item_type));         \
             if (list.items == NULL) {                                                              \
                 list.items = aux;                                                                  \
                 return alloc_error_code;                                                           \
@@ -63,9 +63,14 @@ typedef unsigned char uchar;
 
 #define list_free(list, type)                                                                      \
     do {                                                                                           \
-        if (list.items != NULL)                                                                    \
-            free(list.items);                                                                      \
+        if (list.items != NULL) free(list.items);                                                  \
         list = LIST_INITIALIZE(type);                                                              \
+    } while (0);
+
+#define list_trim(_list, _type)                                                                    \
+    do {                                                                                           \
+        if (_list.alloced > _list.count)                                                           \
+            _list.items = realloc(_list.items, _list.count * sizeof(_type));                     \
     } while (0);
 
 #endif /* ifndef INCLUDE_UTIL_H */

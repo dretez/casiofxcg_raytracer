@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "Scene/Camera.h"
+#include "Arena.h"
 #include "Scene/Light/DiskAreaLight.h"
 #include "Scene/Light/Light.h"
 #include "Scene/Light/PointLight.h"
@@ -10,11 +10,15 @@
 #include "Scene/Objects/Object.h"
 #include "Scene/Objects/Sphere.h"
 #include "Scene/Objects/Triangle.h"
+#include "stdbool.h"
 #include "utils.h"
 
 void SceneBuilder_init(SceneBuilder* builder) {
-    builder->objects = LIST_INITIALIZE(ObjectList);
-    builder->lights  = LIST_INITIALIZE(LightList);
+    builder->objects   = LIST_INITIALIZE(ObjectList);
+    builder->spheres   = Arena_create(KiB(64));
+    builder->triangles = Arena_create(KiB(64));
+
+    builder->lights = LIST_INITIALIZE(LightList);
 }
 
 void SceneBuilder_destroy(SceneBuilder* builder) {
@@ -31,18 +35,30 @@ int SceneBuilder_addSphere(SceneBuilder*   builder,
                            Vec3            center,
                            float           radius,
                            const Material* material) {
-    Sphere* sphere = malloc(sizeof(Sphere));
-    if (!sphere) return 1;
-    Sphere_init(sphere, material, center, radius);
-    list_add(builder->objects, Object*, (Object*)sphere, 1);
+    Sphere* data = Arena_push(builder->spheres, sizeof(Sphere), false);
+    if (!data) return 1;
+    Sphere_init(data, center, radius);
+
+    Object obj = (Object){
+        .vtable   = &sphere_vtable,
+        .material = material,
+        .data     = data,
+    };
+    list_add(builder->objects, Object, obj, 1);
     return 0;
 }
 
 int SceneBuilder_addTriangle(SceneBuilder* builder, const Material* material, Vec3 a, Vec3 b, Vec3 c) {
-    Triangle* tri = malloc(sizeof(Triangle));
-    if (!tri) return 1;
-    Triangle_init(tri, material, a, b, c);
-    list_add(builder->objects, Object*, (Object*)tri, 1);
+    Triangle* data = Arena_push(builder->triangles, sizeof(Triangle), false);
+    if (!data) return 1;
+    Triangle_init(data, a, b, c);
+
+    Object obj = (Object){
+        .vtable   = &triangle_vtable,
+        .material = material,
+        .data     = data,
+    };
+    list_add(builder->objects, Object, obj, 1);
     return 0;
 }
 
@@ -74,6 +90,8 @@ int SceneBuilder_addDiskAreaLight(SceneBuilder* builder, Vec3 posisition, Color 
 }
 
 Scene SceneBuilder_build(SceneBuilder* builder) {
+    list_trim(builder->objects, Object);
+    list_trim(builder->lights, Light);
     return (Scene){
         .camera      = builder->camera,
         .objects     = builder->objects.items,
