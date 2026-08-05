@@ -35,7 +35,7 @@ void VolumeLight_init(VolumeLight* light, Vec3 position, Color color, float inte
     light->samples = samples;
     geo_t rad      = geo_from_float(radius);
     for (int i = 0; i < VOLUME_SAMPLE_COUNT; i++)
-        light->samples[i] = Vec3_add(position, Vec3_scale(volumeSamples[i], rad));
+        light->samples[i] = Vec3_addScaled(position, volumeSamples[i], rad);
 }
 
 static void VolumeLight_initSampler(Light* self, Vec3 shadingPoint) {

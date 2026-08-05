@@ -45,5 +45,6 @@ static Vec3 DiskAreaLight_sample(const Light* self, u16 sample) {
     const DiskAreaLight* light = (const DiskAreaLight*)self;
     geo_t                rx    = diskSamples[sample].x;
     geo_t                ry    = diskSamples[sample].y;
-    return Vec3_add(self->pos, Vec3_add(Vec3_scale(light->u, rx), Vec3_scale(light->v, ry)));
+    Vec3 out = Vec3_addScaled(self->pos, light->u, rx);
+    return Vec3_addScaled(out, light->v, ry);
 }
