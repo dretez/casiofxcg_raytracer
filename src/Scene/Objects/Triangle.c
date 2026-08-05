@@ -44,7 +44,7 @@ static int Triangle_intersect(const ObjectData* self, const Ray* ray, geo_t maxD
     }
     geo_t inv = geo_inv(denom);
     geo_t t   = geo_mul(numer, inv);
-    Vec3  p   = Vec3_add(ray->origin, Vec3_scale(ray->direction, t));
+    Vec3  p   = Vec3_addScaled(ray->origin, ray->direction, t);
 
     return Vec3_dot(tri->edgeNormal0, p) >= tri->e0D && Vec3_dot(tri->edgeNormal1, p) >= tri->e1D &&
            Vec3_dot(tri->edgeNormal2, p) >= tri->e2D;
@@ -57,10 +57,11 @@ static int Triangle_intersectAt(const ObjectData* self, const Ray* ray, geo_t ma
     if (geo_abs(denom) < RAY_EPSILON) return 0;
 
     geo_t numer = geo_sub(tri->planeD, Vec3_dot(tri->normal, ray->origin));
-    geo_t dist  = geo_div(numer, denom);
+    if (!geo_samesign(numer, denom)) return 0;
+    geo_t dist = geo_div(numer, denom);
     if (dist < GEO_ZERO || dist >= maxDist) return 0;
 
-    Vec3 p = Vec3_add(ray->origin, Vec3_scale(ray->direction, dist));
+    Vec3 p = Vec3_addScaled(ray->origin, ray->direction, dist);
     if (Vec3_dot(tri->edgeNormal0, p) < tri->e0D) return 0;
     if (Vec3_dot(tri->edgeNormal1, p) < tri->e1D) return 0;
     if (Vec3_dot(tri->edgeNormal2, p) < tri->e2D) return 0;
