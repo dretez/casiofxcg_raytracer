@@ -36,6 +36,7 @@ set(SOURCES
   src/Engine/Shading.c
 
   src/assets/demo.c
+  src/assets/cornell_box.c
   src/assets/materials.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets

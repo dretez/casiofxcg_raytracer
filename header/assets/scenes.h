@@ -4,5 +4,6 @@
 #include "Scene/Scene.h"
 
 Scene createDemoScene();
+Scene createCornellBoxScene();
 
 #endif /* ifndef INCLUDE_SCENES_H */
