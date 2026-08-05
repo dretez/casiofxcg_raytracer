@@ -1,4 +1,5 @@
 #include "Engine/Lighting.h"
+#include "Vector/Geometry.h"
 
 typedef struct LightingContext {
     const Scene*      scene;
@@ -18,7 +19,11 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 lightDir, Vec3 shadowOrigi
 
 color_t phongSpecular(geo_t ndotl, geo_t ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material);
 
-void computeSample(const LightingContext* ctx, const Light* light, const Vec3 sample);
+void computeSample(const HitRecord*       hit,
+                   const Material*        material,
+                   const LightingContext* ctx,
+                   const Light*           light,
+                   const Vec3             sample);
 
 Color computeLighting(const HitRecord* hit, const Ray* ray, const Scene* scene) {
     const Material* material = hit->object->material;
@@ -58,12 +63,14 @@ void computeSample(const HitRecord*       hit,
                    const LightingContext* ctx,
                    const Light*           light,
                    const Vec3             sample) {
-    Vec3  offset = Vec3_sub(sample, ctx->hit->point);
-    geo_t ndoto  = Vec3_dot(ctx->hit->normal, offset);
+    Vec3 offset = Vec3_sub_fast(sample, hit->point);
+    if (!(geo_samesign(hit->normal.x, offset.x) || geo_samesign(hit->normal.y, offset.y) || geo_samesign(hit->normal.z, offset.z)))
+        return;
+    geo_t ndoto = Vec3_dot(hit->normal, offset);
     if (ndoto <= GEO_ZERO) return;
 
     geo_t   distance2 = Vec3_dot(offset, offset);
-    color_t shadow = shadowTransmission(hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
+    color_t shadow    = shadowTransmission(hit, offset, ctx->shadowOrigin, distance2, ctx->scene);
     if (!shadow) return;
 
     geo_t invDistance = geo_rsqrt(distance2);
@@ -105,7 +112,7 @@ color_t shadowTransmission(const HitRecord* hit, Vec3 offset, Vec3 shadowOrigin,
 
 color_t phongSpecular(geo_t ndotl, geo_t ndotv, Vec3 lightDir, Vec3 viewDir, const Material* material) {
     geo_t ldotv = Vec3_dot(lightDir, viewDir);
-    geo_t rdotv = geo_sub(geo_mul(geo_mul(GEO_TWO, ndotl), ndotv), ldotv);
+    geo_t rdotv = geo_sub_fast(geo_mul(geo_mul_exp_2(ndotl, 1), ndotv), ldotv);
     if (rdotv <= 0) return 0;
 
     geo_t baseSpecular = rdotv;

@@ -4,9 +4,7 @@
 #include "Engine/Lighting.h"
 #include "Engine/Shading.h"
 
-typedef struct TracingContext {
-    HitRecord hit;
-} TracingContext;
+u32 raycount = 0;
 
 typedef struct {
     Vec3  normal;
@@ -16,9 +14,15 @@ typedef struct {
     geo_t eta;
 } SurfaceInteraction;
 
-Color traceRefraction(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene);
+Color traceRefraction(const Ray*                incoming,
+                      const SurfaceInteraction* si,
+                      int                       depth,
+                      const Scene*              scene);
 
-Color traceReflection(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene);
+Color traceReflection(const Ray*                incoming,
+                      const SurfaceInteraction* si,
+                      int                       depth,
+                      const Scene*              scene);
 
 static inline SurfaceInteraction outsideHit(const HitRecord* hit, geo_t rdoth) {
     return (SurfaceInteraction){
@@ -40,22 +44,22 @@ static inline SurfaceInteraction insideHit(const HitRecord* hit, geo_t rdoth) {
     };
 }
 
-Color trace(Ray ray, int depth, const Scene* scene) {
+Color trace(const Ray* restrict ray, const int depth, const Scene* restrict scene) {
+    raycount++;
     if (depth <= 0) return (Color){ 0 };
 
     HitRecord hit = intersectScene(ray, scene);
     if (!hit.object) return background(ray);
 
     Color local = (Color){ 0 };
-    Color reflected = (Color){ 0 };
-    Color refracted = (Color){ 0 };
 
     const Material* material = hit.object->material;
-    if (material->ambient || material->diffuse || material->specular)
-        local = computeLighting(&hit, ray, scene);
-    if (material->reflectivity || material->transparency) {
-        geo_t              rdotn = hit.rdotn;
-        SurfaceInteraction si    = rdotn > GEO_ZERO ? insideHit(&hit, rdotn) : outsideHit(&hit, rdotn);
+    if (material->traceFlags & MATTF_LOCAL) local = computeLighting(&hit, ray, scene);
+    Color reflected = (Color){ 0 };
+    Color refracted = (Color){ 0 };
+    if (material->traceFlags & (MATTF_REFLE | MATTF_REFRA)) {
+        SurfaceInteraction si =
+            hit.rdotn > GEO_ZERO ? insideHit(&hit, hit.rdotn) : outsideHit(&hit, hit.rdotn);
         if (material->reflectivity) reflected = traceReflection(ray, &si, depth, scene);
         if (material->transparency) refracted = traceRefraction(ray, &si, depth, scene);
     }
@@ -63,23 +67,29 @@ Color trace(Ray ray, int depth, const Scene* scene) {
     return combineLighting(local, reflected, refracted, material);
 }
 
-Color traceRefraction(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene) {
+Color traceRefraction(const Ray* restrict incoming,
+                      const SurfaceInteraction* restrict si,
+                      const int                 depth,
+                      const Scene* restrict scene) {
     Vec3 direction;
-    if (!Vec3_refract(incoming.direction, si->normal, si->cosI, si->eta, &direction))
+    if (!Vec3_refract(incoming->direction, si->normal, si->cosI, si->eta, &direction))
         return (Color){ 0 };
 
     Ray ray = (Ray){
         .origin    = si->refractOrigin,
         .direction = direction,
     };
-    return trace(ray, depth, scene);
+    return trace(&ray, depth, scene);
 }
 
-Color traceReflection(Ray incoming, const SurfaceInteraction* si, int depth, const Scene* scene) {
-    Vec3 reflectionDir = Vec3_add(incoming.direction, Vec3_scale(si->normal, geo_mul(GEO_TWO, si->cosI)));
-    Ray  reflectionRay = (Ray){
-         .origin    = si->reflectOrigin,
-         .direction = reflectionDir,
+Color traceReflection(const Ray* restrict incoming,
+                      const SurfaceInteraction* restrict si,
+                      const int                 depth,
+                      const Scene* restrict scene) {
+    Vec3 reflectionDir = Vec3_reflect(incoming->direction, si->normal, si->cosI);
+    Ray reflectionRay = (Ray){
+        .origin    = si->reflectOrigin,
+        .direction = reflectionDir,
     };
-    return trace(reflectionRay, depth - 1, scene);
+    return trace(&reflectionRay, depth - 1, scene);
 }

@@ -4,7 +4,6 @@ static const HitRecord noHit = (HitRecord){
     .point  = (Vec3){ 0 },
     .normal = (Vec3){ 0 },
 
-    .offset = (Vec3){ 0 },
     .innerOffset = (Vec3){ 0 },
     .outerOffset = (Vec3){ 0 },
     .rdotn = 0,
@@ -26,7 +25,7 @@ HitRecord intersectScene(const Ray* ray, const Scene* scene) {
     }
 
     if (!hit) return noHit;
-    Vec3 hitPoint = Vec3_add(ray->origin, Vec3_scale(ray->direction, nearest));
+    Vec3 hitPoint = Vec3_addScaled(ray->origin, ray->direction, nearest);
     Vec3 normal   = hit->vtable->normal(hit->data, hitPoint);
     Vec3 offset   = Vec3_scale(normal, RAY_EPSILON);
 
@@ -34,7 +33,6 @@ HitRecord intersectScene(const Ray* ray, const Scene* scene) {
         .point  = hitPoint,
         .normal = normal,
 
-        .offset = offset,
         .innerOffset = Vec3_sub(hitPoint, offset),
         .outerOffset = Vec3_add(hitPoint, offset),
         .rdotn = Vec3_dot(ray->direction, normal),
