@@ -4,9 +4,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(Raytracer)
 
-include(GenerateG1A)
 include(GenerateG3A)
-include(GenerateHH2Bin)
 include(Fxconv)
 find_package(Gint 2.9 REQUIRED)
 
@@ -45,13 +43,7 @@ set(ASSETS
   assets/scenes/cornell_box.json
   assets/scenes/demo.json
 )
-set(ASSETS_fx
-  assets-fx/example.png
-  # ...
-)
 set(ASSETS_cg
-  assets-cg/example.png
-  # ...
 )
 set(CONVERTERS
   tools/converters.py
@@ -62,7 +54,7 @@ set(CMAKE_FXCONV_COMPILE_OBJECT
 <CMAKE_FXCONV_COMPILER> --toolchain=sh-elf --cg <SOURCE> -o <OBJECT>"
 )
 
-fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
+fxconv_declare_assets(${ASSETS} ${ASSETS_cg} WITH_METADATA)
 fxconv_declare_converters(${CONVERTERS})
 
 add_executable(raytracer ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
@@ -82,15 +74,7 @@ target_link_libraries(raytracer
   m
 )
 
-if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
-  generate_g1a(TARGET raytracer OUTPUT "Raytracer.g1a"
-    NAME "Raytracer" ICON assets-fx/icon.png)
-elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCG50)
+if("${FXSDK_PLATFORM_LONG}" STREQUAL fxCG50)
   generate_g3a(TARGET raytracer OUTPUT "Raytracer.g3a"
     NAME "Raytracer" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
-elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G_G3A)
-  generate_g3a(TARGET raytracer OUTPUT "Raytracer-fx.g3a"
-    NAME "Raytracer-fx" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
-elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCP)
-  generate_hh2_bin(TARGET raytracer OUTPUT "Raytracer-hh2.bin")
 endif()
