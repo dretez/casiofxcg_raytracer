@@ -1,7 +1,7 @@
 #include "Scene/Light/DiskAreaLight.h"
 
-#include "./Light_protected.h"
 #include "Vector/Geometry.h"
+#include "Vector/Vector.h"
 
 static void DiskAreaLight_initSampler(Light* self, Vec3 shadingPoint);
 static Vec3 DiskAreaLight_sample(const Light* self, u16 sample);
@@ -22,21 +22,15 @@ static const Vec2 diskSamples[DISK_AREA_SAMPLE_COUNT] = {
     VEC2_INIT(-0.31f, 0.15f)
 };
 
-void DiskAreaLight_init(DiskAreaLight* light, Vec3 position, Color color, float intensity, float radius) {
-    Light_init(
-        (Light*)light, &diskarealight_vtable, position, color, intensity, DISK_AREA_SAMPLE_COUNT);
-    light->radius = geo_from_float(radius);
-}
-
 static void DiskAreaLight_initSampler(Light* self, Vec3 shadingPoint) {
     DiskAreaLight* light = (DiskAreaLight*)self;
 
     Vec3  w   = Vec3_normalize(Vec3_sub(self->pos, shadingPoint));
-    Vec3  up  = w.y < GEO_ONE ? vec(0, GEO_ONE, 0) : vec(GEO_ONE, 0, 0);
+    Vec3  up  = w.y < GEO_ONE ? vec3(0, GEO_ONE, 0) : vec3(GEO_ONE, 0, 0);
     geo_t inv = up.y ? w.y : w.x;
     inv       = geo_rsqrt(geo_sub(GEO_ONE, geo_mul(inv, inv)));
 
-    light->u = Vec3_scale(up.y ? vec(w.z, 0, -w.x) : vec(0, -w.z, w.y),
+    light->u = Vec3_scale(up.y ? vec3(w.z, 0, -w.x) : vec3(0, -w.z, w.y),
                           geo_mul(inv, ((DiskAreaLight*)light)->radius));
     light->v = Vec3_cross(w, light->u);
 }

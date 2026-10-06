@@ -1,0 +1,6 @@
+cornell_box.json:
+  custom-type: scene
+  name: SCENE_CORNELL_BOX
+demo.json:
+  custom-type: scene
+  name: SCENE_DEMO

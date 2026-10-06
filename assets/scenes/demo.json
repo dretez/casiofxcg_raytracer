@@ -1,0 +1,53 @@
+{
+  "camera": {
+    "position": { "x": 0, "y": 0, "z": 0 },
+    "target": { "x": 0, "y": 0, "z": -5 },
+    "world_up": { "x": 0, "y": 1, "z": 0 },
+    "fov": 0.7854,
+    "width": 396,
+    "height": 224
+  },
+
+  "objects": [
+    {
+      "type": "sphere",
+      "material": "MATERIAL_MATTE",
+      "radius": 1.0,
+      "center": { "x": 0.0, "y": 1.0, "z": -8.0 }
+    },
+    {
+      "type": "sphere",
+      "material": "MATERIAL_PLASTIC",
+      "radius": 1.25,
+      "center": { "x": 2.25, "y": 0, "z": -6.5 }
+    },
+    {
+      "type": "sphere",
+      "material": "MATERIAL_POLISHED",
+      "radius": 1.0,
+      "center": { "x": -2.0, "y": 0.0, "z": -6.0 }
+    },
+    {
+      "type": "sphere",
+      "material": "MATERIAL_FLOOR",
+      "radius": 1000.0,
+      "center": { "x": 0.0, "y": -1001.0, "z": -5.0 }
+    },
+    {
+      "type": "sphere",
+      "material": "MATERIAL_GLASS",
+      "radius": 1.0,
+      "center": { "x": 0.5, "y": 0.0, "z": -5.0 }
+    }
+  ],
+
+  "lights": [
+    {
+      "type": "sphere",
+      "color": { "r": 1.0, "g": 1.0, "b": 1.0 },
+      "position": { "x": 0.0, "y": 2.6, "z": -3.0 },
+      "intensity": 1.5,
+      "radius": 1.0
+    }
+  ]
+}

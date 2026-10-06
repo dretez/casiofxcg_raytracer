@@ -13,13 +13,9 @@ find_package(Gint 2.9 REQUIRED)
 set(SOURCES
   src/Renderer.c
   src/main.c
-  src/Arena.c
 
   src/Scene/Camera.c
-  src/Scene/Scene.c
-  src/Scene/SceneBuilder.c
 
-  src/Scene/Light/Light.c
   src/Scene/Light/PointLight.c
   src/Scene/Light/DiskAreaLight.c
   src/Scene/Light/VolumeLight.c
@@ -32,9 +28,6 @@ set(SOURCES
   src/Engine/Intersection.c
   src/Engine/Lighting.c
   src/Engine/Shading.c
-
-  src/assets/demo.c
-  src/assets/cornell_box.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
@@ -48,6 +41,9 @@ set(ASSETS
   assets/materials/polished.json
   assets/materials/red.json
   assets/materials/white.json
+
+  assets/scenes/cornell_box.json
+  assets/scenes/demo.json
 )
 set(ASSETS_fx
   assets-fx/example.png

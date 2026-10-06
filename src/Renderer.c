@@ -6,7 +6,6 @@
 
 #include "Engine/Lighting.h"
 #include "Engine/Tracing.h"
-#include "assets/scenes.h"
 
 #define MAX_DEPTH 2
 
@@ -37,8 +36,10 @@ void renderPass(const Scene* scene, int pass, int previous) {
     dupdate();
 }
 
+extern const Scene SCENE_DEMO;
+
 int render() {
-    Scene scene = createDemoScene();
+    Scene scene = SCENE_DEMO;
     u32   start = rtc_ticks();
     for (int pass = 4, prev = 0; pass > 0; prev = pass--) {
         uint32_t passStart = rtc_ticks();
@@ -59,6 +60,5 @@ int render() {
     char  buf[128];
     snprintf(buf, sizeof(buf), "Render: %d ms (~%d s)\n", (int)(seconds * 1000.0f), (int)seconds);
     if (usb_is_open()) usb_fxlink_text(buf, 0);
-    Scene_free(&scene);
     return 0;
 }

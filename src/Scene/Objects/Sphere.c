@@ -10,13 +10,6 @@ const ObjectVTable sphere_vtable = (ObjectVTable){
     .normal      = Sphere_normal,
 };
 
-void Sphere_init(Sphere* sphere, Vec3 center, float radius) {
-    sphere->center    = center;
-    sphere->radius    = geo_from_float(radius);
-    sphere->radius2   = geo_mul(sphere->radius, sphere->radius);
-    sphere->invradius = geo_inv(sphere->radius);
-}
-
 static int Sphere_intersect(const ObjectData* self, const Ray* ray, geo_t maxDist2) {
     const Sphere* sphere = (const Sphere*)self;
 

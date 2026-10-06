@@ -15,6 +15,4 @@ typedef struct {
     Camera camera;
 } Scene;
 
-void Scene_free(Scene* scene);
-
 #endif /* ifndef INCLUDE_SCENE_H */

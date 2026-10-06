@@ -15,8 +15,6 @@ typedef struct {
     geo_t e2D;
 } Triangle;
 
-void Triangle_init(Triangle* triangle, Vec3 a, Vec3 b, Vec3 c);
-
 extern const ObjectVTable triangle_vtable;
 
 #endif
