@@ -1,8 +1,6 @@
 # Configure with [fxsdk build-fx] or [fxsdk build-cg], which provide the
 # toolchain file and module path of the fxSDK
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 cmake_minimum_required(VERSION 3.15)
 project(Raytracer)
 
@@ -37,11 +35,19 @@ set(SOURCES
 
   src/assets/demo.c
   src/assets/cornell_box.c
-  src/assets/materials.c
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
-  # ...
+  assets/materials/blue.json
+  assets/materials/floor.json
+  assets/materials/glass.json
+  assets/materials/green.json
+  assets/materials/matte.json
+  assets/materials/mirror.json
+  assets/materials/plastic.json
+  assets/materials/polished.json
+  assets/materials/red.json
+  assets/materials/white.json
 )
 set(ASSETS_fx
   assets-fx/example.png
@@ -51,26 +57,44 @@ set(ASSETS_cg
   assets-cg/example.png
   # ...
 )
+set(CONVERTERS
+  tools/converters.py
+)
+
+set(CMAKE_FXCONV_COMPILE_OBJECT
+"env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR} PROJECT_ROOT=${CMAKE_CURRENT_SOURCE_DIR} \
+<CMAKE_FXCONV_COMPILER> --toolchain=sh-elf --cg <SOURCE> -o <OBJECT>"
+)
 
 fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
+fxconv_declare_converters(${CONVERTERS})
 
-add_executable(myaddin ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
-target_compile_options(myaddin PRIVATE -Wall -Wextra -Os -g -flto)
-target_include_directories(myaddin PRIVATE header)
-target_link_libraries(myaddin
+add_executable(raytracer ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
+target_compile_options(raytracer PRIVATE
+  -Wall
+  -Wextra
+  -Os
+  -g
+  -mtas
+  -flto
+  # -fverbose-asm
+  # -save-temps=obj
+)
+target_include_directories(raytracer PRIVATE header)
+target_link_libraries(raytracer
   Gint::Gint
   m
 )
 
 if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
-  generate_g1a(TARGET myaddin OUTPUT "Raytracer.g1a"
+  generate_g1a(TARGET raytracer OUTPUT "Raytracer.g1a"
     NAME "Raytracer" ICON assets-fx/icon.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCG50)
-  generate_g3a(TARGET myaddin OUTPUT "Raytracer.g3a"
+  generate_g3a(TARGET raytracer OUTPUT "Raytracer.g3a"
     NAME "Raytracer" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G_G3A)
-  generate_g3a(TARGET myaddin OUTPUT "Raytracer-fx.g3a"
+  generate_g3a(TARGET raytracer OUTPUT "Raytracer-fx.g3a"
     NAME "Raytracer-fx" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCP)
-  generate_hh2_bin(TARGET myaddin OUTPUT "Raytracer-hh2.bin")
+  generate_hh2_bin(TARGET raytracer OUTPUT "Raytracer-hh2.bin")
 endif()

@@ -1,0 +1,30 @@
+blue.json:
+  custom-type: material
+  name: MATERIAL_BLUE
+floor.json:
+  custom-type: material
+  name: MATERIAL_FLOOR
+glass.json:
+  custom-type: material
+  name: MATERIAL_GLASS
+green.json:
+  custom-type: material
+  name: MATERIAL_GREEN
+matte.json:
+  custom-type: material
+  name: MATERIAL_MATTE
+mirror.json:
+  custom-type: material
+  name: MATERIAL_MIRROR
+plastic.json:
+  custom-type: material
+  name: MATERIAL_PLASTIC
+polished.json:
+  custom-type: material
+  name: MATERIAL_POLISHED
+red.json:
+  custom-type: material
+  name: MATERIAL_RED
+white.json:
+  custom-type: material
+  name: MATERIAL_WHITE

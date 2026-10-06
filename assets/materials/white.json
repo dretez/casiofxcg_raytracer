@@ -1,0 +1,14 @@
+{
+    "color": {
+        "r": 0.9,
+        "g": 0.9,
+        "b": 0.9
+    },
+    "ambient":      0.25,
+    "diffuse":      0.9,
+    "specular":     0.0,
+    "reflectivity": 0.0,
+    "transparency": 0.0,
+    "ior":          1.0,
+    "shininess":    16
+}

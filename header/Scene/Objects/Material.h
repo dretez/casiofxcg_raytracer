@@ -31,18 +31,4 @@ typedef struct {
 /** Material Tracing flag - Refraction */
 #define MATTF_REFRA 0b100
 
-#define DEFINE_MATERIAL(                                                                           \
-    _color, _ambient, _diffuse, _specular, _reflectivity, _transparency, _ior, _shininess)         \
-    (Material) {                                                                                   \
-        .color       = _color,                                                                     \
-        .localWeight = (u32)_reflectivity + _transparency > (u32)COLOR_ONE                         \
-                           ? 0                                                                     \
-                           : COLOR_ONE - _reflectivity - _transparency,                            \
-        .ambient = _ambient, .diffuse = _diffuse, .specular = _specular,                           \
-        .reflectivity = _reflectivity, .transparency = _transparency, .ior = GEO_FROM_FLOAT(_ior), \
-        .invior = GEO_FROM_FLOAT(1.0f / _ior), .shininess = _shininess,                            \
-        .traceFlags = (((_ambient || _diffuse || _specular) ? MATTF_LOCAL : 0) |                   \
-                       ((_reflectivity) ? MATTF_REFLE : 0) | ((_transparency) ? MATTF_REFRA : 0))  \
-    }
-
 #endif /* ifndef INCLUDE_SCENE_OBJECTS_MATERIAL_H */
